@@ -1,0 +1,1928 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#DDF0FB" />
+  <title>Nubo Desk Pal</title>
+  <style>
+
+:root {
+  --font-sans: "Outfit", ui-rounded, "Segoe UI", sans-serif;
+  --color-bg: #ddf0fb;
+  --color-surface: #f6fbfe;
+  --color-surface-2: #e3f1fa;
+  --color-fg: #1d3550;
+  --color-muted: #5b7c94;
+  --color-faint: #87a3b7;
+  --color-line: #2a2a32;
+  --color-accent: #7ee8ea;
+  --color-accent-fg: #081010;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+}
+
+
+@layer base {
+  html,
+  body,
+  #app {
+    min-height: 100%;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    margin: 0;
+    background: var(--color-bg);
+    color: var(--color-fg);
+    font-family: var(--font-sans);
+    overflow: hidden;
+  }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
+.nubo-app {
+  --pet-body: #2c2d36;
+  --pet-body-hi: #454654;
+  --pet-body-lo: #1b1c22;
+  --pet-accent: #5a5b68;
+  --pet-eye: #7ee8ea;
+  --scene-a: #0b0b0d;
+  --scene-b: #14141a;
+  --desk: #1a1b22;
+  --desk-edge: #0a0a0c;
+  position: relative;
+  min-height: 100dvh;
+  min-height: 100svh;
+  overflow: hidden;
+  background: radial-gradient(120% 80% at 50% 18%, var(--scene-b), var(--scene-a) 62%);
+  color: var(--color-fg);
+  touch-action: none;
+  user-select: none;
+}
+
+.nubo-app[data-theme="pink"] {
+  --pet-body: #ffc0cb;
+  --pet-body-hi: #ffd6de;
+  --pet-body-lo: #e89aa8;
+  --pet-accent: #f08aa0;
+  --pet-eye: #ff8fab;
+  --scene-a: #160e11;
+  --scene-b: #24161b;
+  --desk: #2a1a1f;
+  --desk-edge: #12090c;
+}
+
+.nubo-app[data-theme="sunset"] {
+  --pet-body: #f1b04c;
+  --pet-body-hi: #f7c97a;
+  --pet-body-lo: #d4922e;
+  --pet-accent: #e09a38;
+  --pet-eye: #ffe0a3;
+  --scene-a: #140f09;
+  --scene-b: #231910;
+  --desk: #2a1f14;
+  --desk-edge: #120c07;
+}
+
+.nubo-app[data-theme="teal"] {
+  --pet-body: #40e0d0;
+  --pet-body-hi: #7aeee3;
+  --pet-body-lo: #2bb8ab;
+  --pet-accent: #2aa79c;
+  --pet-eye: #e8fffc;
+  --scene-a: #071211;
+  --scene-b: #0e1e1c;
+  --desk: #12302c;
+  --desk-edge: #06110f;
+}
+
+.nubo-app::before {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  opacity: 0.045;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.9'/></svg>");
+  z-index: 6;
+}
+
+.nubo-scene {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding-top: 48px;
+}
+
+.nubo-glow {
+  position: absolute;
+  width: min(70vw, 420px);
+  height: min(70vw, 420px);
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    color-mix(in oklab, var(--pet-eye) 28%, transparent),
+    transparent 68%
+  );
+  top: 18%;
+  left: 50%;
+  transform: translateX(-50%);
+  filter: blur(8px);
+  pointer-events: none;
+}
+
+.nubo-desk {
+  position: absolute;
+  left: 50%;
+  bottom: 11%;
+  width: min(88vw, 560px);
+  height: 18vh;
+  min-height: 88px;
+  transform: translateX(-50%);
+  background: radial-gradient(120% 90% at 50% 0%, color-mix(in oklab, var(--desk) 80%, white 8%), var(--desk-edge));
+  border-radius: 50%;
+  box-shadow:
+    0 20px 40px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 color-mix(in oklab, white 18%, transparent);
+  pointer-events: none;
+}
+
+.nubo-stage {
+  position: relative;
+  width: min(78vw, 340px);
+  height: min(92vw, 420px);
+  display: grid;
+  place-items: center;
+  z-index: 2;
+}
+
+@media (max-width: 430px) {
+  .nubo-stage {
+    width: 250px;
+    height: 310px;
+    zoom: 0.92;
+  }
+}
+
+.nubo-shadow {
+  position: absolute;
+  bottom: 18%;
+  width: 58%;
+  height: 18px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.45);
+  filter: blur(6px);
+  transform-origin: center;
+  transition:
+    transform 280ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 280ms ease;
+}
+
+.nubo-shadow[data-held="1"] {
+  opacity: 0.28;
+  transform: scale(0.72);
+}
+
+.nubo-shadow[data-mood="faint"] {
+  transform: translateX(36px) scale(0.9);
+}
+
+.nubo-robot {
+  position: relative;
+  width: 240px;
+  height: 280px;
+  transform-origin: 50% 88%;
+  animation: nubo-breathe 3.6s ease-in-out infinite;
+  will-change: transform;
+}
+
+.nubo-robot[data-held="1"] {
+  animation: none;
+  z-index: 4;
+}
+
+.nubo-head {
+  position: absolute;
+  left: 50%;
+  top: 8px;
+  width: 168px;
+  height: 148px;
+  margin-left: -84px;
+  border-radius: 38px;
+  background:
+    linear-gradient(165deg, var(--pet-body-hi) 0%, var(--pet-body) 46%, var(--pet-body-lo) 100%);
+  box-shadow:
+    inset 0 2px 0 color-mix(in oklab, white 42%, transparent),
+    inset 0 -14px 22px color-mix(in oklab, black 22%, transparent),
+    0 0 0 1px color-mix(in oklab, white 18%, var(--pet-body)),
+    0 10px 24px rgba(0, 0, 0, 0.28);
+  z-index: 4;
+}
+
+.nubo-head::after {
+  content: "";
+  position: absolute;
+  top: 10%;
+  left: 14%;
+  width: 38%;
+  height: 16%;
+  border-radius: 50%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.32), transparent);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.nubo-cap {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  width: 54px;
+  height: 18px;
+  margin-left: -27px;
+  border-radius: 999px;
+  background: var(--pet-accent);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  pointer-events: none;
+}
+
+.nubo-oled {
+  position: absolute;
+  left: 50%;
+  top: 34px;
+  width: 128px;
+  height: 64px;
+  margin-left: -64px;
+  border-radius: 16px;
+  background: #07080a;
+  overflow: hidden;
+  z-index: 1;
+  box-shadow:
+    inset 0 0 0 2px #111216,
+    0 0 22px color-mix(in oklab, var(--pet-eye) 34%, transparent);
+}
+
+.nubo-oled-canvas {
+  width: 128px;
+  height: 64px;
+  display: block;
+  image-rendering: pixelated;
+}
+
+.nubo-head-hit,
+.nubo-forehead,
+.nubo-mouth {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  z-index: 5;
+}
+
+.nubo-head-hit {
+  top: 0;
+  height: 32px;
+}
+
+.nubo-forehead {
+  top: 26px;
+  height: 44px;
+}
+
+.nubo-mouth {
+  bottom: 6px;
+  height: 44px;
+}
+
+.nubo-torso {
+  position: absolute;
+  left: 50%;
+  top: 126px;
+  width: 196px;
+  height: 128px;
+  margin-left: -98px;
+  border: 0;
+  padding: 0;
+  border-radius: 42px;
+  background:
+    linear-gradient(180deg, var(--pet-body-hi) 0%, var(--pet-body) 40%, var(--pet-body-lo) 100%);
+  box-shadow:
+    inset 0 2px 0 color-mix(in oklab, white 32%, transparent),
+    inset 0 -16px 24px color-mix(in oklab, black 20%, transparent),
+    0 0 0 1px color-mix(in oklab, white 16%, var(--pet-body)),
+    0 16px 28px rgba(0, 0, 0, 0.3);
+  z-index: 3;
+}
+
+.nubo-belly {
+  position: absolute;
+  left: 50%;
+  top: 34px;
+  width: 14px;
+  height: 14px;
+  margin-left: -7px;
+  border-radius: 50%;
+  background: var(--pet-accent);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.3);
+  pointer-events: none;
+}
+
+.nubo-plate {
+  position: absolute;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  min-width: 72px;
+  max-width: 140px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: color-mix(in oklab, black 22%, var(--pet-body-lo));
+  color: color-mix(in oklab, white 80%, var(--pet-body-hi));
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: lowercase;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.nubo-arm {
+  position: absolute;
+  top: 142px;
+  width: 34px;
+  height: 92px;
+  border-radius: 999px;
+  background:
+    linear-gradient(180deg, var(--pet-body-hi), var(--pet-accent) 40%, var(--pet-body-lo));
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.28),
+    0 0 0 1px color-mix(in oklab, white 14%, var(--pet-body)),
+    0 8px 12px rgba(0, 0, 0, 0.2);
+  transform-origin: 50% 10%;
+  z-index: 2;
+  animation: nubo-arm-idle 3.2s ease-in-out infinite;
+}
+
+.nubo-arm[data-side="left"] {
+  left: 14px;
+  animation-delay: -0.6s;
+}
+
+.nubo-arm[data-side="right"] {
+  right: 14px;
+}
+
+.nubo-mood-label {
+  position: absolute;
+  bottom: 8%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--scene-a) 55%, transparent);
+  color: var(--color-fg);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  pointer-events: none;
+}
+
+.nubo-top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 8;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: calc(12px + env(safe-area-inset-top)) 16px 0;
+  pointer-events: none;
+}
+
+.nubo-top-actions,
+.nubo-brand {
+  pointer-events: auto;
+}
+
+.nubo-brand {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.nubo-brand-kicker {
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  font-weight: 500;
+}
+
+.nubo-brand-name {
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  text-wrap: balance;
+}
+
+.nubo-top-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.nubo-icon-btn {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border: 1px solid color-mix(in oklab, var(--color-fg) 12%, transparent);
+  background: color-mix(in oklab, var(--color-surface) 82%, transparent);
+  color: var(--color-fg);
+  border-radius: 14px;
+  transition:
+    transform 150ms ease-out,
+    background-color 150ms ease;
+}
+
+.nubo-icon-btn:active {
+  transform: scale(0.96);
+}
+
+.nubo-icon-btn-ghost {
+  background: transparent;
+  border-color: transparent;
+}
+
+.nubo-hint {
+  position: absolute;
+  left: 50%;
+  bottom: calc(16px + env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  z-index: 7;
+  margin: 0;
+  width: min(88vw, 420px);
+  padding: 0 12px;
+  text-align: center;
+  color: var(--color-muted);
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  line-height: 1.5;
+  pointer-events: none;
+  text-wrap: pretty;
+}
+
+.nubo-help {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  top: calc(68px + env(safe-area-inset-top));
+  z-index: 9;
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 16px 16px 12px;
+  border-radius: 24px;
+  background: var(--color-surface);
+  border: 1px solid color-mix(in oklab, var(--color-fg) 12%, transparent);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+}
+
+.nubo-help-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.nubo-help-head p {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.nubo-help ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.nubo-help li {
+  display: grid;
+  gap: 2px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: var(--color-surface-2);
+}
+
+.nubo-help strong {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.nubo-help span {
+  font-size: 12px;
+  color: var(--color-muted);
+  line-height: 1.45;
+  text-wrap: pretty;
+}
+
+
+[hidden] {
+  display: none !important;
+}
+
+.nubo-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.48);
+  z-index: 20;
+}
+
+.nubo-sheet {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100dvh;
+  width: min(100vw, 380px);
+  background: var(--color-surface);
+  color: var(--color-fg);
+  z-index: 21;
+  padding: calc(16px + env(safe-area-inset-top)) 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  border-left: 1px solid color-mix(in oklab, var(--color-fg) 10%, transparent);
+  box-shadow: -20px 0 50px rgba(0, 0, 0, 0.35);
+  outline: none;
+  overflow-y: auto;
+}
+
+.nubo-sheet-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nubo-sheet-title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+
+.nubo-field {
+  display: grid;
+  gap: 8px;
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+.nubo-field-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-muted);
+}
+
+.nubo-field-hint {
+  margin: 0;
+  font-size: 12px;
+  color: var(--color-faint);
+  line-height: 1.5;
+}
+
+.nubo-input {
+  height: 44px;
+  border-radius: 12px;
+  border: 1px solid color-mix(in oklab, var(--color-fg) 14%, transparent);
+  background: var(--color-surface-2);
+  color: var(--color-fg);
+  padding: 0 14px;
+  font: inherit;
+  font-size: 16px;
+}
+
+.nubo-input:focus {
+  outline: 2px solid color-mix(in oklab, var(--pet-eye) 70%, white);
+  outline-offset: 2px;
+}
+
+.nubo-btn {
+  height: 44px;
+  border-radius: 12px;
+  border: 0;
+  background: var(--color-fg);
+  color: var(--color-bg);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  transition: transform 150ms ease-out;
+}
+
+.nubo-btn:active {
+  transform: scale(0.96);
+}
+
+.nubo-swatches {
+  display: grid;
+  gap: 8px;
+}
+
+.nubo-swatch {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 48px;
+  padding: 0 12px;
+  border-radius: 14px;
+  border: 1px solid color-mix(in oklab, var(--color-fg) 12%, transparent);
+  background: var(--color-surface-2);
+  color: var(--color-fg);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  transition:
+    transform 150ms ease-out,
+    border-color 150ms ease;
+}
+
+.nubo-swatch:active {
+  transform: scale(0.96);
+}
+
+.nubo-swatch[data-selected="1"] {
+  border-color: color-mix(in oklab, var(--color-fg) 45%, transparent);
+}
+
+.nubo-swatch-dot {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1px solid color-mix(in oklab, white 18%, transparent);
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.25);
+}
+
+.nubo-swatch[data-theme-id="black"] .nubo-swatch-dot {
+  background: #1a1b20;
+}
+.nubo-swatch[data-theme-id="pink"] .nubo-swatch-dot {
+  background: #ffc0cb;
+}
+.nubo-swatch[data-theme-id="sunset"] .nubo-swatch-dot {
+  background: #f1b04c;
+}
+.nubo-swatch[data-theme-id="teal"] .nubo-swatch-dot {
+  background: #40e0d0;
+}
+
+.nubo-swatch-name {
+  flex: 1;
+  text-align: left;
+}
+
+.nubo-swatch-spacer {
+  width: 16px;
+  height: 16px;
+}
+
+.nubo-food {
+  position: absolute;
+  right: -10px;
+  bottom: 6px;
+  width: 54px;
+  height: 64px;
+  z-index: 6;
+  pointer-events: none;
+  animation: nubo-food-in 2800ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.nubo-food-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.35));
+}
+
+.nubo-fx {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.nubo-part {
+  position: absolute;
+  display: grid;
+  place-items: center;
+}
+
+.nubo-part-heart {
+  color: #ff8fab;
+}
+
+.nubo-part-z {
+  color: var(--pet-eye);
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.nubo-part-spark {
+  color: var(--pet-eye);
+  font-weight: 700;
+}
+
+.nubo-snore {
+  position: absolute;
+  left: 58%;
+  top: 22%;
+  color: var(--pet-eye);
+  font-size: 22px;
+  font-weight: 700;
+  animation: nubo-snore 2.4s ease-in-out infinite;
+}
+
+@keyframes nubo-breathe {
+  0%,
+  100% {
+    transform: translateY(0) scale(1, 1);
+  }
+  50% {
+    transform: translateY(-4px) scale(1.012, 0.988);
+  }
+}
+
+@keyframes nubo-arm-idle {
+  0%,
+  100% {
+    transform: rotate(6deg);
+  }
+  50% {
+    transform: rotate(-10deg);
+  }
+}
+
+.nubo-robot[data-mood="soothe"] {
+  animation: nubo-soothe 2.8s ease-in-out infinite;
+}
+
+.nubo-robot[data-mood="soothe"] .nubo-arm[data-side="left"] {
+  transform: rotate(18deg);
+  animation: none;
+}
+.nubo-robot[data-mood="soothe"] .nubo-arm[data-side="right"] {
+  transform: rotate(-18deg);
+  animation: none;
+}
+
+@keyframes nubo-soothe {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-1.5deg);
+  }
+  50% {
+    transform: translateY(-6px) rotate(1.5deg);
+  }
+}
+
+.nubo-robot[data-mood="sleep"] {
+  animation: nubo-sleep 3.8s ease-in-out infinite;
+}
+
+.nubo-robot[data-mood="sleep"] .nubo-arm {
+  animation: none;
+  transform: rotate(22deg);
+}
+
+.nubo-robot[data-mood="sleep"] .nubo-arm[data-side="right"] {
+  transform: rotate(-22deg);
+}
+
+@keyframes nubo-sleep {
+  0%,
+  100% {
+    transform: translateY(8px) rotate(-6deg);
+  }
+  50% {
+    transform: translateY(12px) rotate(-8deg);
+  }
+}
+
+.nubo-robot[data-mood="dizzy"] {
+  animation: nubo-dizzy 0.7s ease-in-out infinite;
+}
+
+.nubo-robot[data-mood="dizzy"] .nubo-arm {
+  animation: nubo-arm-flail 0.35s ease-in-out infinite alternate;
+}
+
+@keyframes nubo-dizzy {
+  0%,
+  100% {
+    transform: rotate(-8deg) translateX(-6px);
+  }
+  50% {
+    transform: rotate(8deg) translateX(6px);
+  }
+}
+
+@keyframes nubo-arm-flail {
+  from {
+    transform: rotate(-28deg);
+  }
+  to {
+    transform: rotate(32deg);
+  }
+}
+
+.nubo-robot[data-mood="faint"] {
+  animation: nubo-faint 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.nubo-robot[data-mood="faint"] .nubo-arm {
+  animation: none;
+  transform: rotate(70deg);
+}
+
+@keyframes nubo-faint {
+  to {
+    transform: translate(48px, 36px) rotate(78deg);
+  }
+}
+
+.nubo-robot[data-mood="cry"] {
+  animation: nubo-cry 0.45s ease-in-out infinite;
+}
+
+.nubo-robot[data-mood="cry"] .nubo-arm[data-side="left"] {
+  transform: rotate(-40deg) translate(10px, -18px);
+  animation: none;
+}
+.nubo-robot[data-mood="cry"] .nubo-arm[data-side="right"] {
+  transform: rotate(40deg) translate(-10px, -18px);
+  animation: none;
+}
+
+@keyframes nubo-cry {
+  0%,
+  100% {
+    transform: translateX(-3px);
+  }
+  50% {
+    transform: translateX(3px);
+  }
+}
+
+.nubo-robot[data-mood="eat"] {
+  animation: nubo-eat 0.28s ease-in-out infinite;
+}
+
+@keyframes nubo-eat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(4px);
+  }
+}
+
+.nubo-robot[data-mood="startle"] {
+  animation: nubo-startle 700ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.nubo-robot[data-mood="startle"] .nubo-arm {
+  animation: none;
+  transform: rotate(-28deg);
+}
+
+.nubo-robot[data-mood="startle"] .nubo-arm[data-side="right"] {
+  transform: rotate(28deg);
+}
+
+@keyframes nubo-startle {
+  0% {
+    transform: scale(1, 1);
+  }
+  30% {
+    transform: translateY(-22px) scale(0.96, 1.06);
+  }
+  100% {
+    transform: translateY(0) scale(1, 1);
+  }
+}
+
+.nubo-robot[data-mood="angry"] {
+  animation: nubo-angry 0.35s ease-in-out infinite;
+}
+
+.nubo-robot[data-mood="angry"] .nubo-arm {
+  animation: none;
+  transform: rotate(12deg);
+}
+
+@keyframes nubo-angry {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-3px);
+  }
+  75% {
+    transform: translateX(3px);
+  }
+}
+
+.nubo-robot[data-mood="curious"] .nubo-head {
+  transform: rotate(-8deg);
+  transition: transform 250ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.nubo-robot[data-mood="curious"] .nubo-arm[data-side="right"] {
+  transform: rotate(32deg);
+  animation: none;
+}
+
+.nubo-robot[data-mood="happy"] {
+  animation: nubo-happy 0.55s cubic-bezier(0.34, 1.36, 0.64, 1) infinite;
+}
+
+.nubo-robot[data-mood="happy"] .nubo-arm {
+  animation: none;
+  transform: rotate(-42deg);
+}
+
+.nubo-robot[data-mood="happy"] .nubo-arm[data-side="right"] {
+  transform: rotate(42deg);
+}
+
+@keyframes nubo-happy {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-14px);
+  }
+}
+
+@keyframes nubo-food-in {
+  0% {
+    opacity: 0;
+    transform: translate(16px, 8px) scale(0.6);
+  }
+  18% {
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
+  }
+  70% {
+    opacity: 1;
+    transform: translate(-8px, 10px) scale(0.85);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-18px, 22px) scale(0.2);
+  }
+}
+
+@keyframes nubo-snore {
+  0% {
+    opacity: 0;
+    transform: translate(0, 8px) scale(0.7);
+  }
+  40% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(18px, -28px) scale(1.2);
+  }
+}
+
+.nubo-app[data-mood="sleep"] .nubo-glow {
+  opacity: 0.45;
+}
+
+.nubo-app[data-mood="angry"] .nubo-glow {
+  background: radial-gradient(circle, rgba(220, 80, 70, 0.28), transparent 68%);
+}
+
+@media (min-width: 720px) {
+  .nubo-robot {
+    transform: scale(1.12);
+    transform-origin: 50% 80%;
+  }
+  .nubo-brand-name {
+    font-size: 26px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nubo-robot,
+  .nubo-arm,
+  .nubo-food,
+  .nubo-snore,
+  .nubo-glow {
+    animation: none !important;
+  }
+}
+
+/* ===== Blob character (雲朵史萊姆) ===== */
+.nubo-blob{
+  --bw:min(340px,92vw);
+  position:absolute;left:50%;bottom:19%;
+  width:var(--bw);margin-left:calc(var(--bw) / -2);
+  aspect-ratio:1124/716;
+  transform-origin:50% 98%;
+  animation:blob-idle 3.4s ease-in-out infinite;
+  will-change:transform;
+}
+.nubo-blob[data-held="1"]{animation:none;z-index:4}
+.nubo-app[data-char="blob"] .nubo-robot{display:none}
+.nubo-app:not([data-char="blob"]) .nubo-blob{display:none}
+.nubo-app[data-char="blob"] .nubo-shadow{width:78%}
+.nubo-app[data-char="blob"] .nubo-glow{top:30%}
+.nubo-app[data-char="blob"] .nubo-snore{left:64%;top:36%}
+.nubo-blob-img{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none;-webkit-user-drag:none;user-select:none;filter:drop-shadow(0 10px 12px rgba(40,100,150,.28))}
+.nubo-app[data-theme="pink"] .nubo-blob-img{filter:hue-rotate(115deg) saturate(3) drop-shadow(0 10px 12px rgba(40,100,150,.28))}
+.nubo-app[data-theme="sunset"] .nubo-blob-img{filter:hue-rotate(165deg) saturate(3.4) drop-shadow(0 10px 12px rgba(40,100,150,.28))}
+.nubo-app[data-theme="teal"] .nubo-blob-img{filter:hue-rotate(300deg) saturate(2.6) drop-shadow(0 10px 12px rgba(40,100,150,.28))}
+.nubo-blob-face{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2}
+.nubo-blob-zone{position:absolute;background:transparent;border:0;padding:0;z-index:3;-webkit-tap-highlight-color:transparent}
+.nubo-blob-zone[data-zone="body"]{left:2%;right:2%;top:20%;bottom:0}
+.nubo-blob-zone[data-zone="head"]{left:22%;width:60%;top:0;height:24%;z-index:4}
+.nubo-blob-zone[data-zone="forehead"]{left:12%;right:12%;top:22%;height:17%;z-index:4}
+.nubo-blob-zone[data-zone="mouth"]{left:38%;width:26%;top:56%;height:26%;z-index:4}
+.nubo-blob-food{position:absolute;inset:0;pointer-events:none;z-index:6}
+.nubo-blob .nubo-food{left:52%;top:48%;right:auto;bottom:auto}
+.blob-fxsvg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;z-index:1}
+.blob-burst,.blob-stars{opacity:0;transition:opacity .18s ease}
+.nubo-blob[data-mood="happy"] .blob-burst,.nubo-blob[data-mood="startle"] .blob-burst{opacity:1}
+.nubo-blob[data-mood="happy"] .blob-stars,.nubo-blob[data-mood="soothe"] .blob-stars{opacity:1}
+.blob-burst{transform-box:fill-box;transform-origin:50% 100%;animation:blob-burst .5s ease-in-out infinite alternate}
+.blob-star{transform-box:fill-box;transform-origin:center;animation:blob-twinkle 1.1s ease-in-out infinite}
+.blob-star:nth-child(2){animation-delay:-.3s}.blob-star:nth-child(3){animation-delay:-.6s}.blob-star:nth-child(4){animation-delay:-.9s}
+@keyframes blob-burst{from{transform:scale(.92)}to{transform:scale(1.08)}}
+@keyframes blob-twinkle{0%,100%{transform:scale(.7) rotate(0)}50%{transform:scale(1.15) rotate(12deg)}}
+
+@keyframes blob-idle{0%,100%{transform:scale(1,1)}50%{transform:scale(1.025,.965)}}
+@keyframes blob-boot{0%{transform:scale(.3,.1);opacity:0}60%{transform:scale(1.1,.9);opacity:1}100%{transform:scale(1,1)}}
+.nubo-blob[data-mood="boot"]{animation:blob-boot .8s cubic-bezier(.34,1.36,.64,1) both}
+.nubo-blob[data-mood="soothe"]{animation:blob-soothe 2.8s ease-in-out infinite}
+@keyframes blob-soothe{0%,100%{transform:rotate(-1.5deg) scale(1,1)}50%{transform:rotate(1.5deg) scale(1.03,.97)}}
+.nubo-blob[data-mood="sleep"]{animation:blob-sleep 3.8s ease-in-out infinite}
+@keyframes blob-sleep{0%,100%{transform:scale(1.03,.9)}50%{transform:scale(1.06,.86)}}
+.nubo-blob[data-mood="dizzy"]{animation:blob-dizzy .8s ease-in-out infinite}
+@keyframes blob-dizzy{0%,100%{transform:rotate(-6deg) scale(1.04,.96)}50%{transform:rotate(6deg) scale(.97,1.04)}}
+.nubo-blob[data-mood="faint"]{animation:blob-faint .7s cubic-bezier(.22,1,.36,1) both}
+@keyframes blob-faint{to{transform:translateX(14px) rotate(3deg) scale(1.1,.55)}}
+.nubo-blob[data-mood="cry"]{animation:blob-cry .45s ease-in-out infinite}
+@keyframes blob-cry{0%,100%{transform:translateX(-3px) scale(1.02,.97)}50%{transform:translateX(3px) scale(.99,1.01)}}
+.nubo-blob[data-mood="eat"]{animation:blob-eat .28s ease-in-out infinite}
+@keyframes blob-eat{0%,100%{transform:scale(1,1)}50%{transform:scale(1.04,.94)}}
+.nubo-blob[data-mood="startle"]{animation:blob-startle .7s cubic-bezier(.22,1,.36,1)}
+@keyframes blob-startle{0%{transform:scale(1,1)}30%{transform:translateY(-34px) scale(.9,1.14)}100%{transform:translateY(0) scale(1,1)}}
+.nubo-blob[data-mood="angry"]{animation:blob-angry .35s ease-in-out infinite}
+@keyframes blob-angry{0%,100%{transform:translateX(0) scale(1.03,.97)}25%{transform:translateX(-3px) scale(1.03,.97)}75%{transform:translateX(3px) scale(1.03,.97)}}
+.nubo-blob[data-mood="curious"]{animation:blob-curious 2s ease-in-out infinite}
+@keyframes blob-curious{0%,100%{transform:rotate(-5deg) scale(.98,1.03)}50%{transform:rotate(-7deg) scale(.97,1.05)}}
+.nubo-blob[data-mood="happy"]{animation:blob-happy .55s cubic-bezier(.34,1.36,.64,1) infinite}
+@keyframes blob-happy{0%,100%{transform:translateY(0) scale(1.03,.95)}50%{transform:translateY(-26px) scale(.96,1.07)}}
+@media (min-width:720px){.nubo-blob{--bw:430px}}
+
+/* ===== Light background #DDF0FB ===== */
+.nubo-app,.nubo-app[data-theme="pink"],.nubo-app[data-theme="sunset"],.nubo-app[data-theme="teal"]{--scene-a:#DDF0FB;--scene-b:#DDF0FB;--desk:#c9e5f5;--desk-edge:#b7daef}
+.nubo-app[data-mood="angry"] .nubo-glow{background:radial-gradient(circle,rgba(255,110,100,.3),transparent 68%)}
+body{background:#DDF0FB}
+.nubo-brand-name,.nubo-mood-label{color:#1f3a4d}
+.nubo-brand-kicker,.nubo-hint{color:#5b7a8c}
+.nubo-mood-label{background:rgba(255,255,255,.6)}
+.nubo-top .nubo-icon-btn{background:rgba(255,255,255,.7);color:#1f3a4d;border-color:rgba(31,58,77,.15)}
+.nubo-desk{box-shadow:0 20px 40px rgba(60,110,150,.18),inset 0 1px 0 rgba(255,255,255,.7)}
+.nubo-shadow{background:rgba(40,80,120,.28)}
+
+@media (prefers-reduced-motion:reduce){.nubo-blob,.blob-burst,.blob-star{animation:none !important}}
+.nubo-swatch[data-char-id="robot"] .nubo-swatch-dot{background:#2c2d36}
+.nubo-swatch[data-char-id="blob"] .nubo-swatch-dot{background:#dfe3fa}
+
+/* ===== Light scene (#DDF0FB) ===== */
+.nubo-app,.nubo-app[data-theme]{--scene-a:#ddf0fb;--scene-b:#ddf0fb;--desk:#cde7f6;--desk-edge:#bcdcee;background:#ddf0fb}
+.nubo-app::before{display:none}
+.nubo-desk{box-shadow:0 14px 30px rgba(40,100,150,.16),inset 0 2px 0 rgba(255,255,255,.8)}
+.nubo-glow{opacity:.6}
+.nubo-shadow{background:rgba(40,100,150,.3)}
+.nubo-overlay{background:rgba(20,50,80,.28)}
+.nubo-sheet{box-shadow:-20px 0 50px rgba(20,60,100,.18)}
+.nubo-help{box-shadow:0 18px 40px rgba(20,60,100,.18)}
+.nubo-part-z,.nubo-part-spark,.nubo-snore{color:#3f9ad2}
+.nubo-blob-zone{cursor:grab}
+.nubo-blob-zone:active{cursor:grabbing}
+.nubo-blob[data-spring="1"]{animation:none !important;transition:transform .7s cubic-bezier(.2,2.1,.45,.95)}
+.nubo-blob[data-mood="wink"],.nubo-blob[data-mood="blep"]{animation:blob-soothe 2.2s ease-in-out infinite}
+
+/* ===== v3: 啵啵 / natural motion ===== */
+.nubo-app[data-theme="cloud"]{--pet-eye:#8cc8f5}
+.nubo-swatch[data-theme-id="cloud"] .nubo-swatch-dot{background:#dfe3fa}
+.nubo-blob[data-held="1"]{animation:none !important}
+.nubo-blob-zone[data-zone="forehead"]{height:14%}
+.nubo-blob-zone[data-zone="eyes"]{left:14%;right:14%;top:37%;height:15%;z-index:4}
+.nubo-blob-zone.cheekL{left:3%;width:22%;top:52%;height:32%;z-index:4}
+.nubo-blob-zone.cheekR{right:3%;width:22%;top:52%;height:32%;z-index:4}
+.nubo-shadow[data-held="1"]{opacity:1;transform:none}
+.nubo-part-spark{font-size:20px}
+.nubo-blob[data-mood="wow"] .blob-stars,.nubo-blob[data-mood="love"] .blob-stars,.nubo-blob[data-mood="dance"] .blob-stars,.nubo-blob[data-mood="giggle"] .blob-stars{opacity:1}
+.nubo-blob[data-mood="wow"] .blob-burst{opacity:1}
+.nubo-blob[data-mood="giggle"]{animation:blob-giggle .32s ease-in-out infinite}
+@keyframes blob-giggle{0%,100%{transform:translateY(0) rotate(-3deg) scale(1.02,.98)}50%{transform:translateY(-8px) rotate(3deg) scale(.98,1.03)}}
+.nubo-blob[data-mood="ouch"]{animation:blob-ouch .5s ease-out}
+@keyframes blob-ouch{0%{transform:scale(1.1,.85)}35%{transform:translateX(-6px) scale(.95,1.06)}70%{transform:translateX(5px)}100%{transform:none}}
+.nubo-blob[data-mood="hum"]{animation:blob-hum 2.2s ease-in-out infinite}
+@keyframes blob-hum{0%,100%{transform:rotate(-3deg) translateY(0)}50%{transform:rotate(3deg) translateY(-5px)}}
+.nubo-blob[data-mood="dance"]{animation:blob-dance .6s ease-in-out infinite}
+@keyframes blob-dance{0%,100%{transform:translateX(-10px) rotate(-8deg) scale(1.03,.96)}50%{transform:translateX(10px) translateY(-18px) rotate(8deg) scale(.97,1.05)}}
+.nubo-blob[data-mood="sneeze"]{animation:blob-sneeze 1.8s ease-in-out both}
+@keyframes blob-sneeze{0%{transform:none}45%{transform:scale(1.05,1.1) translateY(-6px) rotate(-3deg)}52%{transform:scale(1.12,.82) translateY(4px) rotate(2deg)}62%{transform:scale(.97,1.05)}100%{transform:none}}
+.nubo-blob[data-mood="hiccup"]{animation:blob-hiccup .9s ease-in-out infinite}
+@keyframes blob-hiccup{0%,100%{transform:none}8%{transform:translateY(-14px) scale(.96,1.07)}16%{transform:translateY(0) scale(1.05,.94)}28%{transform:none}}
+.nubo-blob[data-mood="shy"]{animation:blob-shy 1.6s ease-in-out infinite}
+@keyframes blob-shy{0%,100%{transform:rotate(-2deg) scale(.97,.99)}50%{transform:rotate(2deg) scale(.96,.98)}}
+.nubo-blob[data-mood="sulk"]{animation:blob-sulk 3s ease-in-out infinite}
+@keyframes blob-sulk{0%,100%{transform:scale(1.03,.9)}50%{transform:scale(1.04,.88)}}
+.nubo-blob[data-mood="love"]{animation:blob-love 1s ease-in-out infinite}
+@keyframes blob-love{0%,100%{transform:scale(1,1)}50%{transform:scale(1.04,.97) rotate(-1.5deg)}}
+.nubo-blob[data-mood="bored"]{animation:blob-bored 3.6s ease-in-out infinite}
+@keyframes blob-bored{0%,100%{transform:scale(1.02,.95)}50%{transform:scale(1.03,.93)}}
+.nubo-blob[data-mood="wow"]{animation:blob-wow .7s cubic-bezier(.34,1.4,.64,1)}
+@keyframes blob-wow{0%{transform:scale(1,1)}40%{transform:translateY(-22px) scale(.93,1.12)}100%{transform:none}}
+.nubo-blob[data-mood="think"]{animation:blob-think 2.4s ease-in-out infinite}
+@keyframes blob-think{0%,100%{transform:rotate(-5deg) scale(.99,1.02)}50%{transform:rotate(-3deg) scale(.99,1.03)}}
+.nubo-blob[data-mood="wake"]{animation:blob-wake 1s ease-out both}
+@keyframes blob-wake{0%{transform:scale(1.03,.88)}100%{transform:scale(1,1)}}
+.nubo-blob[data-mood="yawn"]{animation:blob-yawn 2.3s ease-in-out both}
+@keyframes blob-yawn{0%{transform:none}40%{transform:scale(.96,1.1) translateY(-4px)}70%{transform:scale(.96,1.1)}100%{transform:scale(1.03,.93)}}
+.nubo-blob[data-mood="sweat"]{animation:blob-cry .5s ease-in-out infinite}
+
+</style>
+</head>
+<body>
+  <main id="app" class="nubo-app" data-theme="black" data-mood="boot">
+    <div id="scene" class="nubo-scene">
+      <div class="nubo-glow"></div>
+      <div class="nubo-desk"></div>
+      <div id="fx" class="nubo-fx" aria-hidden="true"></div>
+
+      <div class="nubo-stage">
+        <div id="shadow" class="nubo-shadow" data-held="0" data-mood="boot"></div>
+        <div id="robot" class="nubo-robot" data-mood="boot" data-held="0">
+          <span class="nubo-arm" data-side="left" data-mood="boot" aria-hidden="true"></span>
+          <span class="nubo-arm" data-side="right" data-mood="boot" aria-hidden="true"></span>
+
+          <button type="button" class="nubo-torso" data-zone="body" aria-label="點身體">
+            <span class="nubo-belly"></span>
+            <span id="plateName" class="nubo-plate">robot</span>
+          </button>
+
+          <div class="nubo-head">
+            <span class="nubo-cap" aria-hidden="true"></span>
+            <button type="button" class="nubo-head-hit" data-zone="head" aria-label="摸頭"></button>
+            <button type="button" class="nubo-forehead" data-zone="forehead" aria-label="連點額頭"></button>
+            <div class="nubo-oled">
+              <canvas id="face" width="128" height="64" class="nubo-oled-canvas" aria-hidden="true"></canvas>
+            </div>
+            <button type="button" class="nubo-mouth" data-zone="mouth" aria-label="點嘴巴"></button>
+            <div id="food"></div>
+          </div>
+        </div>
+        <div id="blob" class="nubo-blob" data-mood="boot" data-held="0">
+          <svg class="blob-fxsvg" viewBox="0 0 1124 716" aria-hidden="true">
+            <g class="blob-stars" fill="#fff" stroke="#6fb6e6" stroke-width="12" stroke-linejoin="round">
+              <path class="blob-star" d="M289 -165 Q300 -125 340 -110 Q300 -95 289 -55 Q278 -95 238 -110 Q278 -125 289 -165Z"/>
+              <path class="blob-star" d="M834 -60 Q841 -35 866 -25 Q841 -15 834 10 Q827 -15 802 -25 Q827 -35 834 -60Z"/>
+              <path class="blob-star" d="M54 135 Q62 165 92 176 Q62 187 54 217 Q46 187 16 176 Q46 165 54 135Z"/>
+              <path class="blob-star" d="M1084 190 Q1089 208 1106 214 Q1089 220 1084 238 Q1079 220 1062 214 Q1079 208 1084 190Z"/>
+            </g>
+            <g class="blob-burst" stroke-linecap="round">
+              <g><line x1="140" y1="-55" x2="176" y2="32" stroke="#fff" stroke-width="64"/><line x1="52" y1="28" x2="118" y2="88" stroke="#fff" stroke-width="64"/>
+                 <line x1="140" y1="-55" x2="176" y2="32" stroke="#ffd24d" stroke-width="40"/><line x1="52" y1="28" x2="118" y2="88" stroke="#ffd24d" stroke-width="40"/></g>
+              <g><line x1="984" y1="-55" x2="948" y2="32" stroke="#fff" stroke-width="64"/><line x1="1072" y1="28" x2="1006" y2="88" stroke="#fff" stroke-width="64"/>
+                 <line x1="984" y1="-55" x2="948" y2="32" stroke="#ffd24d" stroke-width="40"/><line x1="1072" y1="28" x2="1006" y2="88" stroke="#ffd24d" stroke-width="40"/></g>
+            </g>
+          </svg>
+          <img class="nubo-blob-img" alt="" draggable="false" src="data:image/webp;base64,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" />
+          <canvas id="blobFace" class="nubo-blob-face" width="674" height="430" aria-hidden="true"></canvas>
+          <button type="button" class="nubo-blob-zone" data-zone="body" aria-label="點身體"></button>
+          <button type="button" class="nubo-blob-zone" data-zone="head" aria-label="摸頭"></button>
+          <button type="button" class="nubo-blob-zone" data-zone="forehead" aria-label="連點額頭"></button>
+          <button type="button" class="nubo-blob-zone" data-zone="eyes" aria-label="戳眼睛"></button>
+          <button type="button" class="nubo-blob-zone cheekL" data-zone="cheek" aria-label="戳臉頰"></button>
+          <button type="button" class="nubo-blob-zone cheekR" data-zone="cheek" aria-label="戳臉頰"></button>
+          <button type="button" class="nubo-blob-zone" data-zone="mouth" aria-label="點嘴巴"></button>
+          <div id="blobFood" class="nubo-blob-food"></div>
+        </div>
+        <p id="moodLabel" class="nubo-mood-label">開機中</p>
+      </div>
+    </div>
+
+    <header class="nubo-top">
+      <div class="nubo-brand">
+        <span class="nubo-brand-kicker">Desk pal</span>
+        <span id="brandName" class="nubo-brand-name">robot</span>
+      </div>
+      <div class="nubo-top-actions">
+        <button id="helpBtn" type="button" class="nubo-icon-btn" aria-label="玩法" title="玩法">?</button>
+        <button id="settingsBtn" type="button" class="nubo-icon-btn" aria-label="開啟設定" title="設定">☰</button>
+      </div>
+    </header>
+
+    <aside id="helpPanel" class="nubo-help" aria-label="玩法" hidden>
+      <div class="nubo-help-head">
+        <p>怎麼跟他玩</p>
+        <button id="helpClose" type="button" class="nubo-icon-btn nubo-icon-btn-ghost" aria-label="關閉玩法">×</button>
+      </div>
+      <ul>
+        <li><strong>摸頭</strong><span>療癒表情，30 秒後會睡著</span></li>
+        <li><strong>抓起 / 搖晃</strong><span>暈眩、昏倒、哭哭，隨機一種</span></li>
+        <li><strong>點嘴巴</strong><span>吃棒棒糖、漢堡或壽司</span></li>
+        <li><strong>點身體</strong><span>驚嚇，點滿十次會生氣氣</span></li>
+        <li><strong>點畫面</strong><span>好奇地看向你點的地方</span></li>
+        <li><strong>連點額頭兩下</strong><span>驚喜、開心</span></li>
+        <li><strong>拉臉 / 抓起</strong><span>啵啵：輕拉會變長、放開彈回；拉很遠就被抓起來，放手會掉下去、彈一下，再隨機反應。機器人直接抓起。按住啵啵會被壓扁</span></li>
+        <li><strong>戳臉頰 / 戳眼睛</strong><span>啵啵：臉頰會害羞、咯咯笑；戳眼睛會喊痛</span></li>
+        <li><strong>自己會動</strong><span>會打哈欠、哼歌、打噴嚏、打嗝、發呆，太久沒理他會睡著；被放到別處，過一陣子會自己走回來</span></li>
+        <li><strong>換角色</strong><span>設定裡可切換機器人／啵啵</span></li>
+      </ul>
+    </aside>
+
+    <p id="hint" class="nubo-hint">摸頭 · 點嘴巴 · 點身體 · 拉臉 · 抓起來 · 點畫面</p>
+
+    <div id="settingsOverlay" class="nubo-overlay" hidden></div>
+    <section id="settingsSheet" class="nubo-sheet" role="dialog" aria-modal="true" aria-labelledby="settingsTitle" hidden>
+      <div class="nubo-sheet-head">
+        <h2 id="settingsTitle" class="nubo-sheet-title">設定</h2>
+        <button id="settingsClose" type="button" class="nubo-icon-btn nubo-icon-btn-ghost" aria-label="關閉設定">×</button>
+      </div>
+
+      <label class="nubo-field">
+        <span class="nubo-field-label">姓名</span>
+        <input id="nameInput" class="nubo-input" maxlength="16" placeholder="robot" />
+        <span id="nameHint" class="nubo-field-hint">沒填的話會叫 robot</span>
+      </label>
+
+      <fieldset class="nubo-field">
+        <legend class="nubo-field-label">角色</legend>
+        <div class="nubo-swatches">
+          <button type="button" class="nubo-swatch" data-char-id="robot"><span class="nubo-swatch-dot"></span><span class="nubo-swatch-name">機器人</span><span class="char-check"></span></button>
+          <button type="button" class="nubo-swatch" data-char-id="blob"><span class="nubo-swatch-dot"></span><span class="nubo-swatch-name">啵啵</span><span class="char-check"></span></button>
+        </div>
+      </fieldset>
+
+      <fieldset class="nubo-field">
+        <legend class="nubo-field-label">色系</legend>
+        <div class="nubo-swatches">
+          <button type="button" class="nubo-swatch" data-theme-id="cloud"><span class="nubo-swatch-dot"></span><span class="nubo-swatch-name">雲朵藍</span><span class="theme-check"></span></button>
+          <button type="button" class="nubo-swatch" data-theme-id="black"><span class="nubo-swatch-dot"></span><span class="nubo-swatch-name">黑</span><span class="theme-check"></span></button>
+          <button type="button" class="nubo-swatch" data-theme-id="pink"><span class="nubo-swatch-dot"></span><span class="nubo-swatch-name">粉紅</span><span class="theme-check"></span></button>
+          <button type="button" class="nubo-swatch" data-theme-id="sunset"><span class="nubo-swatch-dot"></span><span class="nubo-swatch-name">夕陽橙</span><span class="theme-check"></span></button>
+          <button type="button" class="nubo-swatch" data-theme-id="teal"><span class="nubo-swatch-dot"></span><span class="nubo-swatch-name">土耳其藍</span><span class="theme-check"></span></button>
+        </div>
+      </fieldset>
+
+      <div class="nubo-field">
+        <span class="nubo-field-label">搖晃感應</span>
+        <p id="motionHint" class="nubo-field-hint" hidden>已開啟。搖晃手機會讓他暈眩、昏倒或哭哭。</p>
+        <button id="motionBtn" type="button" class="nubo-btn">允許搖晃感應</button>
+      </div>
+    </section>
+  </main>
+  <script>
+(() => {
+  'use strict';
+
+  const STORAGE_KEY = 'nubo-settings-v1';
+  const SLEEP_AFTER_MS = 45000;
+  const SOOTHE_HOLD_MS = 5000;
+  const SHAKE_COOLDOWN = 1600;
+  const FOODS = ['lollipop', 'burger', 'sushi'];
+  const SHAKE_MOODS = ['dizzy', 'faint', 'cry'];
+  const MOOD_LABEL = {
+    boot:'開機中', idle:'放空', soothe:'療癒中', sleep:'睡著了', dizzy:'暈乎乎', faint:'昏倒了',
+    cry:'嗚嗚', eat:'好好吃', startle:'嚇到了', angry:'生氣氣', curious:'那是什麼', happy:'驚喜', stretch:'拉長長', squish:'扁扁的', wink:'眨眼', blep:'吐舌', carried:'放我下來', sweat:'冷汗', yawn:'呵～欠', giggle:'咯咯笑', ouch:'痛痛', hum:'哼歌', sneeze:'噴嚏', hiccup:'打嗝', shy:'害羞', sulk:'鬧彆扭', love:'愛心眼', bored:'好無聊', wow:'哇～', think:'思考中', wake:'剛睡醒', dance:'跳舞'
+  };
+  const EYE_COLOR = { cloud:'#7ee8ea', black:'#7ee8ea', pink:'#ff8fab', sunset:'#ffe0a3', teal:'#e8fffc' };
+
+  const $ = (s, root=document) => root.querySelector(s);
+  const $$ = (s, root=document) => [...root.querySelectorAll(s)];
+  const app = $('#app'), scene = $('#scene'), robot = $('#robot'), shadow = $('#shadow');
+  const face = $('#face'), ctx2d = face.getContext('2d');
+  const moodLabel = $('#moodLabel'), plateName = $('#plateName'), brandName = $('#brandName');
+  const foodHost = $('#food'), fx = $('#fx');
+  const settingsSheet = $('#settingsSheet'), settingsOverlay = $('#settingsOverlay'), hint = $('#hint');
+  const nameInput = $('#nameInput'), motionBtn = $('#motionBtn'), motionHint = $('#motionHint');
+  const blob = $('#blob'), blobFace = $('#blobFace'), bctx = blobFace.getContext('2d'), blobFoodHost = $('#blobFood');
+
+  const defName = c => c === 'blob' ? '啵啵' : 'robot';
+  const saved = (() => {
+    const okName = v => typeof v === 'string' && v.trim() ? v.trim().slice(0,16) : '';
+    try {
+      const p = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+      const pn = p.names || {}, pt = p.themes || {};
+      const rt = ['black','pink','sunset','teal'], bt = ['cloud','pink','sunset','teal'];
+      return {
+        names: { robot: okName(pn.robot) || okName(p.name) || 'robot', blob: okName(pn.blob) || '啵啵' },
+        themes: { robot: rt.includes(pt.robot) ? pt.robot : (rt.includes(p.theme) ? p.theme : 'black'), blob: bt.includes(pt.blob) ? pt.blob : 'cloud' },
+        char: p.char === 'blob' ? 'blob' : 'robot'
+      };
+    } catch { return { names:{robot:'robot', blob:'啵啵'}, themes:{robot:'black', blob:'cloud'}, char:'robot' }; }
+  })();
+
+  const state = {
+    names:saved.names, themes:saved.themes, name:saved.names[saved.char], theme:saved.themes[saved.char], char:saved.char,
+    mood:'boot', moodT0:performance.now(), fl:{}, food:null, pokeCount:0,
+    lookX:0, lookY:0, held:false, blinking:false, motionReady:false,
+    lookTarget:{x:0,y:0}, lookNow:{x:0,y:0}, particles:[], partId:1,
+    lastShake:0, lastForehead:0, accPrev:null, drag:null, hold:null,
+    timers:{mood:0,sleep:0,sleep2:0,blink:0,spring:0,poke:0}, stretch:null
+  };
+
+  function saveSettings(){
+    state.names[state.char]=state.name; state.themes[state.char]=state.theme;
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify({names:state.names, themes:state.themes, char:state.char})); } catch {}
+  }
+  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+  function pick(a){ return a[Math.floor(Math.random()*a.length)]; }
+  function buzz(pattern){ try { navigator.vibrate?.(pattern); } catch {} }
+
+  function renderState(){
+    app.dataset.theme = state.theme; app.dataset.mood = state.mood;
+    app.dataset.char = state.char;
+    robot.dataset.mood = state.mood; robot.dataset.held = state.held ? '1':'0';
+    blob.dataset.mood = state.mood; blob.dataset.held = (state.held || state.stretch) ? '1':'0';
+    shadow.dataset.mood = state.mood; shadow.dataset.held = state.held ? '1':'0';
+    $$('.nubo-arm').forEach(a => a.dataset.mood = state.mood);
+    moodLabel.textContent = MOOD_LABEL[state.mood];
+    brandName.textContent = state.name; plateName.textContent = state.name;
+    $$('.nubo-swatch[data-char-id]').forEach(btn => {
+      const on = btn.dataset.charId === state.char;
+      btn.dataset.selected = on ? '1':'0'; btn.setAttribute('aria-pressed', String(on));
+      $('.char-check', btn).textContent = on ? '✓' : '';
+    });
+    $('.nubo-swatch[data-theme-id="black"]').hidden = state.char === 'blob';
+    $('.nubo-swatch[data-theme-id="cloud"]').hidden = state.char !== 'blob';
+    nameInput.placeholder = defName(state.char); $('#nameHint').textContent = '沒填的話會叫 ' + defName(state.char);
+    $$('.nubo-swatch[data-theme-id]').forEach(btn => {
+      const on = btn.dataset.themeId === state.theme;
+      btn.dataset.selected = on ? '1':'0'; btn.setAttribute('aria-pressed', String(on));
+      $('.theme-check', btn).textContent = on ? '✓' : '';
+    });
+    const actor = state.char === 'blob' ? blob : robot, other = actor === blob ? robot : blob;
+    other.style.transform = ''; other.style.transition = '';
+    if (state.char === 'blob' && state.stretch) {
+      blob.style.transform = state.stretch.tf; blob.style.transformOrigin = state.stretch.origin; blob.style.transition = 'none';
+      shadow.style.transform = `scaleX(${Math.min(1.5, .8 + .3*state.stretch.s)})`;
+    } else if (state.hold) {
+      actor.style.transform = `translate(${state.hold.x}px, ${state.hold.y}px) rotate(${state.hold.rot}deg)`;
+      actor.style.transition = 'none';
+      shadow.style.transform = `translateX(${state.hold.x*.4}px) scale(${.72 + Math.min(.2, Math.abs(state.hold.y)/400)})`;
+    } else {
+      actor.style.transform = ''; actor.style.transition = ''; shadow.style.transform = '';
+    }
+  }
+
+  function setMood(m){ if(state.mood!==m){state.moodT0=performance.now();state.fl={};} state.mood=m; renderState(); }
+  function setFood(kind){ state.food=kind; renderFood(); }
+  function renderFood(){
+    foodHost.innerHTML=''; blobFoodHost.innerHTML='';
+    if (!state.food) return;
+    const svg = state.food === 'lollipop' ? `<svg viewBox="0 0 64 96" class="nubo-food-svg"><rect x="30" y="40" width="5" height="48" rx="2" fill="#e8d5b0"/><circle cx="32" cy="28" r="22" fill="#ff6b8a"/><path d="M32 10c10 0 18 8 18 18 0 4-1 7-3 10" fill="none" stroke="#ffe3ea" stroke-width="5" stroke-linecap="round"/><circle cx="24" cy="20" r="5" fill="rgba(255,255,255,.45)"/></svg>`
+      : state.food === 'burger' ? `<svg viewBox="0 0 72 64" class="nubo-food-svg"><ellipse cx="36" cy="18" rx="28" ry="12" fill="#e2a054"/><rect x="8" y="18" width="56" height="8" fill="#e2a054"/><rect x="10" y="26" width="52" height="6" rx="2" fill="#6dbd5b"/><rect x="9" y="32" width="54" height="10" rx="3" fill="#7a3e24"/><rect x="11" y="42" width="50" height="6" rx="2" fill="#f1d36b"/><ellipse cx="36" cy="52" rx="28" ry="9" fill="#c9843a"/><circle cx="22" cy="16" r="2.2" fill="#f4f0e6"/><circle cx="40" cy="14" r="1.8" fill="#f4f0e6"/></svg>`
+      : `<svg viewBox="0 0 80 48" class="nubo-food-svg"><ellipse cx="40" cy="28" rx="32" ry="14" fill="#1c1c20"/><ellipse cx="40" cy="24" rx="28" ry="11" fill="#f4efe6"/><ellipse cx="40" cy="18" rx="26" ry="9" fill="#e07070"/><path d="M18 18c8 4 36 4 44 0" fill="none" stroke="#f4efe6" stroke-width="2"/><rect x="36" y="8" width="8" height="28" fill="#1c1c20"/></svg>`;
+    (state.char === 'blob' ? blobFoodHost : foodHost).innerHTML = `<div class="nubo-food" data-kind="${state.food}" aria-hidden="true">${svg}</div>`;
+  }
+
+  let audioCtx=null, audioUnlocked=false;
+  function unlockAudio(){
+    const AC=window.AudioContext||window.webkitAudioContext; if(!AC)return;
+    if(!audioCtx) audioCtx=new AC(); if(audioCtx.state==='suspended') audioCtx.resume(); audioUnlocked=true;
+  }
+  function play(notes){
+    if(!audioCtx||!audioUnlocked)return; const t0=audioCtx.currentTime;
+    notes.forEach(n=>{ const at=t0+(n.delay||0), o=audioCtx.createOscillator(), g=audioCtx.createGain();
+      o.type=n.type||'sine'; o.frequency.setValueAtTime(n.freq,at);
+      if(n.slide) o.frequency.exponentialRampToValueAtTime(Math.max(40,n.freq*n.slide),at+n.dur);
+      const gain=n.gain??.07; g.gain.setValueAtTime(.0001,at); g.gain.exponentialRampToValueAtTime(gain,at+.018); g.gain.exponentialRampToValueAtTime(.0001,at+n.dur);
+      o.connect(g); g.connect(audioCtx.destination); o.start(at); o.stop(at+n.dur+.02);
+    });
+  }
+  const sounds={
+    boot:()=>play([{freq:440,dur:.09},{freq:660,dur:.12,delay:.1},{freq:880,dur:.16,delay:.22,slide:1.1}]),
+    soothe:()=>play([{freq:523,dur:.14,gain:.05},{freq:659,dur:.18,delay:.12,gain:.05},{freq:784,dur:.22,delay:.26,gain:.04}]),
+    startle:()=>play([{freq:980,dur:.08,type:'square',gain:.04,slide:1.4}]),
+    angry:()=>play([{freq:140,dur:.16,type:'sawtooth',gain:.04},{freq:110,dur:.2,type:'sawtooth',gain:.04,delay:.14}]),
+    eat:()=>play([{freq:180,dur:.07,type:'triangle',gain:.06},{freq:160,dur:.07,type:'triangle',gain:.05,delay:.12},{freq:200,dur:.08,type:'triangle',gain:.05,delay:.24}]),
+    happy:()=>play([{freq:523,dur:.1},{freq:659,dur:.1,delay:.1},{freq:784,dur:.12,delay:.2},{freq:1046,dur:.18,delay:.32,gain:.05}]),
+    cry:()=>play([{freq:420,dur:.22,slide:.7,gain:.05},{freq:360,dur:.28,slide:.65,gain:.04,delay:.24}]),
+    dizzy:()=>play([{freq:500,dur:.18,slide:.6,type:'triangle',gain:.05},{freq:700,dur:.18,slide:.55,type:'triangle',gain:.04,delay:.16}]),
+    yawn:()=>play([{freq:420,dur:.7,slide:.55,gain:.04,type:'triangle'}]),
+    giggle:()=>play([{freq:700,dur:.07,gain:.04},{freq:880,dur:.07,delay:.1,gain:.04},{freq:740,dur:.07,delay:.2,gain:.04},{freq:920,dur:.08,delay:.3,gain:.04}]),
+    ouch:()=>play([{freq:700,dur:.14,slide:.5,gain:.06,type:'square'}]),
+    hiccup:()=>play([{freq:260,dur:.05,gain:.05,type:'square'}]),
+    wow:()=>play([{freq:600,dur:.12,slide:1.8,gain:.05}]),
+    love:()=>play([{freq:660,dur:.12,gain:.04},{freq:830,dur:.16,delay:.12,gain:.04}]),
+    hum:()=>play([{freq:392,dur:.2,gain:.035},{freq:440,dur:.2,delay:.22,gain:.035},{freq:523,dur:.3,delay:.44,gain:.035}]),
+    sneeze:()=>play([{freq:300,dur:.8,slide:2.2,gain:.03,type:'triangle'}]),
+    choo:()=>play([{freq:900,dur:.18,slide:.3,gain:.08,type:'sawtooth'}]),
+    wake:()=>play([{freq:300,dur:.25,slide:1.5,gain:.04}]),
+    carried:()=>play([{freq:560,dur:.1,slide:1.4,gain:.05}]),
+    stretch:()=>play([{freq:300,dur:.3,slide:2,gain:.05,type:'triangle'}]),
+    squish:()=>play([{freq:200,dur:.12,slide:.6,gain:.06,type:'triangle'}]),
+    wink:()=>play([{freq:880,dur:.08,gain:.05},{freq:1200,dur:.1,delay:.08,gain:.04}]),
+    blep:()=>play([{freq:600,dur:.1,slide:.7,gain:.04},{freq:500,dur:.12,delay:.1,slide:.7,gain:.04}]),
+    faint:()=>play([{freq:240,dur:.4,slide:.4,gain:.05}]), curious:()=>play([{freq:480,dur:.16,slide:1.6,gain:.045}]), sleep:()=>play([{freq:220,dur:.35,slide:.7,gain:.03}])
+  };
+
+  function spawn(kind,n){
+    const head=state.char==='blob'?$('.nubo-blob-img'):$('.nubo-head'), r=head.getBoundingClientRect(), s=scene.getBoundingClientRect();
+    for(let i=0;i<n;i++) state.particles.push({id:state.partId++,kind,x:r.left-s.left+r.width*.5+(Math.random()-.5)*40,y:r.top-s.top+r.height*.2+(Math.random()-.5)*16,vx:(Math.random()-.5)*40,vy:-30-Math.random()*50,life:.9+Math.random()*.5,max:1.2});
+    state.particles=state.particles.slice(-28);
+  }
+  const ROBOT_MAP={carried:'startle',sweat:'cry',yawn:'curious',giggle:'happy',ouch:'startle',hum:'soothe',sneeze:'startle',hiccup:'startle',shy:'soothe',sulk:'cry',love:'soothe',bored:'idle',wow:'happy',think:'curious',wake:'curious',dance:'happy',stretch:'startle',squish:'startle',wink:'happy',blep:'eat'};
+  function mapMood(m){ return state.char==='blob' ? m : (ROBOT_MAP[m]||m); }
+  function goMood(next,holdMs,passive){
+    next=mapMood(next);
+    clearTimeout(state.timers.mood);
+    if(state.mood==='sleep'&&!passive&&next!=='sleep'){
+      setMood(mapMood('wake')); sounds.wake?.(); scheduleSleep();
+      state.timers.mood=setTimeout(()=>goMood(next,holdMs,true),950); return;
+    }
+    setMood(next); sounds[next]?.();
+    if(next==='soothe'||next==='love')spawn('heart',5);
+    if(next==='happy'||next==='wow'||next==='giggle')spawn('spark',6);
+    if(next==='sleep')spawn('zzz',3);
+    if(next==='hum'||next==='dance')spawn('note',3);
+    if(holdMs && !['sleep','angry'].includes(next)) state.timers.mood=setTimeout(()=>{ if(state.pokeCount>=10){goMood('angry');}else{setMood('idle');} setFood(null); },holdMs);
+    if(next==='angry') state.timers.mood=setTimeout(()=>{state.pokeCount=0;goMood(state.char==='blob'?'sulk':'idle',3200,true);},5500);
+    if(!passive&&next!=='sleep'&&next!=='yawn')scheduleSleep();
+  }
+  function scheduleSleep(){
+    clearTimeout(state.timers.sleep); clearTimeout(state.timers.sleep2);
+    state.timers.sleep=setTimeout(()=>{
+      if(state.char==='blob'){ goMood('yawn',0,true); state.timers.sleep2=setTimeout(()=>{goMood('sleep',0,true);buzz(12);},2300); }
+      else { goMood('sleep',0,true); buzz(12); }
+    },SLEEP_AFTER_MS);
+  }
+  function interruptSleep(){ clearTimeout(state.timers.sleep); clearTimeout(state.timers.sleep2); }
+
+  function petHead(){
+    interruptSleep(); state.pokeCount=0; setFood(null);
+    const now=performance.now(); state.pets=(state.pets||[]).filter(t=>now-t<9000); state.pets.push(now);
+    goMood(state.pets.length>=4?'love':'soothe',SOOTHE_HOLD_MS); buzz(12);
+  }
+  function pokeBody(){
+    interruptSleep(); state.pokeCount++; clearTimeout(state.timers.poke); state.timers.poke=setTimeout(()=>{state.pokeCount=0;},6000); setFood(null);
+    if(state.pokeCount>=10){goMood('angry');buzz([30,40,40,40,50]);return;}
+    const m=state.pokeCount>=6?pick(['ouch','sweat','startle']):(state.pokeCount>=3?pick(['startle','ouch','giggle']):'startle');
+    goMood(m,m==='startle'?1100:1700); buzz(24);
+  }
+  function eatMouth(){
+    interruptSleep(); setFood(pick(FOODS)); goMood('eat',2800); buzz(10);
+    clearTimeout(state.timers.post); state.timers.post=setTimeout(()=>{ if(state.mood==='idle'&&Math.random()<.55)goMood(pick(['wow','happy','hum','blep']),1800,true); },2900);
+  }
+  function happyForehead(){ interruptSleep(); setFood(null); goMood('happy',2600); buzz([10,20,10]); }
+  function curiousAt(x,y){ interruptSleep(); lookAtPoint(x,y); setFood(null); goMood('curious',1800); }
+  function eyeTap(){ interruptSleep(); setFood(null); goMood(pick(['ouch','ouch','sweat','startle']),1600); buzz(18); }
+  function cheekTap(){
+    interruptSleep(); setFood(null); const now=performance.now();
+    state.tickle=(state.tickle||[]).filter(t=>now-t<1800); state.tickle.push(now);
+    if(state.tickle.length>=3){goMood('giggle',2800);buzz([10,20,10,20]);} else {goMood(pick(['shy','giggle','wink','blep']),1800);buzz(10);}
+  }
+  function handleTap(zone,x,y){
+    if(zone==='scene')return curiousAt(x,y); if(zone==='mouth')return eatMouth(); if(zone==='body')return pokeBody();
+    if(zone==='eyes')return eyeTap(); if(zone==='cheek')return cheekTap();
+    if(zone==='forehead'){const now=performance.now(); if(now-state.lastForehead<420){state.lastForehead=0;return happyForehead();}state.lastForehead=now;return petHead();} petHead();
+  }
+  function lookAtPoint(clientX,clientY){
+    const r=(state.char==='blob'?blobFace:$('.nubo-oled')).getBoundingClientRect(), cx=r.left+r.width/2, cy=r.top+r.height/2;
+    state.lookTarget.x=Math.max(-1,Math.min(1,(clientX-cx)/(innerWidth*.35))); state.lookTarget.y=Math.max(-1,Math.min(1,(clientY-cy)/(innerHeight*.35)));
+  }
+  function applyShake(){
+    const now=performance.now(); if(now-state.lastShake<SHAKE_COOLDOWN)return; if(phys.mode==='carry')return; state.lastShake=now; interruptSleep(); setFood(null); goMood(pick(SHAKE_MOODS),3200); buzz([18,40,30]); state.stretch=null;if(state.char==='blob')springBack();renderState();
+  }
+
+  async function enableMotion(){
+    try {
+      const DM=window.DeviceMotionEvent; if(DM?.requestPermission){if(await DM.requestPermission()!=='granted')return;}
+      window.removeEventListener('devicemotion',onMotion); window.addEventListener('devicemotion',onMotion); state.motionReady=true;
+      motionBtn.hidden=true; motionHint.hidden=false;
+    } catch { window.addEventListener('devicemotion',onMotion); state.motionReady=true; motionBtn.hidden=true; motionHint.hidden=false; }
+  }
+  function onMotion(e){
+    const acc=e.accelerationIncludingGravity;if(!acc)return;const t=performance.now(),cur={x:acc.x||0,y:acc.y||0,z:acc.z||0,t},p=state.accPrev;state.accPrev=cur;
+    if(!p||t-p.t<50)return;const speed=Math.abs(cur.x-p.x)+Math.abs(cur.y-p.y)+Math.abs(cur.z-p.z);if(speed>22)applyShake();
+  }
+
+  function touched(){ phys.restSince=performance.now(); if(phys.mode==='walk')phys.mode='rest'; }
+  function zonePointerDown(e){
+    e.stopPropagation();e.preventDefault();unlockAudio(); enableMotion(); touched(); const zone=e.currentTarget.dataset.zone; e.currentTarget.setPointerCapture?.(e.pointerId);
+    state.drag={pointerId:e.pointerId,zone,sx:e.clientX,sy:e.clientY,x:e.clientX,y:e.clientY,moved:false,samples:[{t:performance.now(),x:e.clientX,y:e.clientY}]};
+    if(state.char==='blob'){
+      const d=state.drag; d.rect=blob.getBoundingClientRect();
+      d.press=setTimeout(()=>{ if(state.drag===d&&!d.moved){ d.squish=true; interruptSleep(); setFood(null); clearTimeout(state.timers.mood);
+        state.stretch={tf:'scale(1.14,.74)',origin:'50% 100%',s:.8}; setMood('squish'); sounds.squish?.(); renderState(); } },420);
+    }
+  }
+  $$('[data-zone]').forEach(el=>el.addEventListener('pointerdown',zonePointerDown));
+  scene.addEventListener('pointerdown',e=>{
+    if(e.target.closest('[data-zone],button,input,[role="dialog"]'))return; unlockAudio();enableMotion();touched();state.drag={pointerId:e.pointerId,zone:'scene',sx:e.clientX,sy:e.clientY,x:e.clientX,y:e.clientY,moved:false,samples:[]};
+  });
+  scene.addEventListener('pointermove',e=>{
+    const d=state.drag;
+    if(!d){ if(e.pointerType==='mouse'&&['idle','curious'].includes(state.mood)&&phys.mode!=='carry'){lookAtPoint(e.clientX,e.clientY);state.hoverT=performance.now();} return; }
+    if(d.pointerId!==e.pointerId)return;
+    d.x=e.clientX;d.y=e.clientY;const dist=Math.hypot(d.x-d.sx,d.y-d.sy);
+    if(d.zone!=='scene'){ if(state.char==='blob')blobDrag(d,e,dist); else robotDrag(d,e,dist); return; }
+    lookAtPoint(e.clientX,e.clientY);
+  });
+  scene.addEventListener('pointerup',e=>{
+    const d=state.drag;if(!d||d.pointerId!==e.pointerId)return;const moved=d.moved,zone=d.zone,x=e.clientX,y=e.clientY;state.drag=null;
+    if(zone!=='scene'){ clearTimeout(d.press); if(moved||d.squish){dragRelease(d);return;} }
+    handleTap(zone,x,y);
+  });
+  scene.addEventListener('pointercancel',()=>{
+    const d=state.drag; state.drag=null;
+    if(d){ clearTimeout(d.press); if(d.moved||d.squish)dragRelease(d); }
+  });
+
+  $('#helpBtn').addEventListener('click',()=>{ $('#helpPanel').hidden=!$('#helpPanel').hidden; });
+  $('#helpClose').addEventListener('click',()=>{$('#helpPanel').hidden=true;});
+  function openSettings(){settingsOverlay.hidden=false;settingsSheet.hidden=false;hint.hidden=true;nameInput.value=state.name;nameInput.focus();}
+  function closeSettings(){settingsOverlay.hidden=true;settingsSheet.hidden=true;hint.hidden=false;commitName();}
+  $('#settingsBtn').addEventListener('click',openSettings); $('#settingsClose').addEventListener('click',closeSettings); settingsOverlay.addEventListener('click',closeSettings);
+  function commitName(){state.name=nameInput.value.trim().slice(0,16)||defName(state.char);saveSettings();renderState();}
+  nameInput.addEventListener('blur',commitName); nameInput.addEventListener('keydown',e=>{if(e.key==='Enter'){commitName();nameInput.blur();}if(e.key==='Escape')closeSettings();});
+  $$('.nubo-swatch[data-theme-id]').forEach(btn=>btn.addEventListener('click',()=>{state.theme=btn.dataset.themeId;saveSettings();renderState();}));
+  motionBtn.addEventListener('click',enableMotion);
+
+  /* ---------- Physics: carry / fall / land / walk back ---------- */
+  const phys={x:0,y:0,vx:0,vy:0,rot:0,sx:1,sy:1,vsx:0,vsy:0,fy:0,fyOld:0,mode:'rest',restSince:performance.now(),phase:0,carryT:0,nervous:false,dizzyNow:false,reacted:true,drop:0,carriedFor:0,tx:0,ty:0,grab:null,hist:[]};
+  const maxX=()=>Math.min(innerWidth/2-70,240);
+  function resetPhys(){
+    phys.x=phys.y=phys.vx=phys.vy=phys.rot=0; phys.fy=0; phys.sx=phys.sy=1; phys.vsx=phys.vsy=0; phys.mode='rest'; phys.restSince=performance.now();
+    [blob,robot].forEach(el=>{el.style.translate='';el.style.rotate='';el.style.scale='';});
+    shadow.style.translate='';shadow.style.scale='';shadow.style.opacity='';
+  }
+  function springBack(){
+    blob.dataset.spring='1'; clearTimeout(state.timers.spring);
+    state.timers.spring=setTimeout(()=>{blob.dataset.spring='0';blob.style.transformOrigin='';},720);
+  }
+  function startCarry(d,e){
+    clearTimeout(d.press); interruptSleep(); setFood(null); clearTimeout(state.timers.mood); clearTimeout(state.timers.post); clearTimeout(state.timers.spring); blob.dataset.spring='0';
+    state.stretch=null; state.held=true; d.moved=true; d.squish=false; d.dizzy=false;
+    phys.mode='carry'; phys.carryT=0; phys.nervous=false; phys.dizzyNow=false; phys.fyOld=phys.fy;
+    phys.grab={px:e.clientX,py:e.clientY,x0:phys.x,y0:phys.y}; phys.tx=phys.x; phys.ty=phys.y; phys.hist=[]; phys.vx=phys.vy=0;
+    setMood(mapMood('carried')); sounds.carried?.(); buzz(12); renderState();
+  }
+  function carryMove(d,e){
+    const g=phys.grab,mx=maxX();
+    phys.tx=clamp(g.x0+(e.clientX-g.px),-mx,mx); phys.ty=clamp(g.y0+(e.clientY-g.py),-innerHeight*.6,50);
+    const now=performance.now(); phys.hist.push({t:now,x:phys.tx}); if(phys.hist.length>10)phys.hist.shift();
+  }
+  function shakeCheck(d){
+    if(phys.dizzyNow)return; const now=performance.now();
+    d.samples.push({t:now,x:d.x,y:d.y}); if(d.samples.length>12)d.samples.shift();
+    const rc=d.samples.filter(q=>now-q.t<320); if(rc.length<6)return;
+    let flips=0,tr=0;
+    for(let i=2;i<rc.length;i++){const a=rc[i],b=rc[i-1],c=rc[i-2],v1=b.x-c.x,v2=a.x-b.x;if(v1*v2<0&&Math.abs(v1)+Math.abs(v2)>18)flips++;}
+    for(let i=1;i<rc.length;i++)tr+=Math.hypot(rc[i].x-rc[i-1].x,rc[i].y-rc[i-1].y);
+    if(flips>=3&&tr>300){phys.dizzyNow=true;setMood(mapMood('dizzy'));sounds.dizzy?.();buzz([18,40,30]);}
+  }
+  function robotDrag(d,e,dist){
+    if(phys.mode!=='carry'){ if(dist<12)return; startCarry(d,e); }
+    carryMove(d,e); shakeCheck(d);
+  }
+  function endCarry(){
+    const now=performance.now(), h=phys.hist.filter(q=>now-q.t<140);
+    let vx=0; if(h.length>1){const dtm=(now-h[0].t)/1000; if(dtm>.02)vx=(phys.tx-h[0].x)/dtm;}
+    phys.vx=clamp(vx*.6,-700,700);
+    phys.fy=phys.y>0?clamp(phys.y,0,50):phys.fyOld;
+    phys.vy=0; phys.mode='fall'; phys.reacted=false; phys.drop=Math.max(0,phys.fy-phys.y); phys.carriedFor=phys.carryT;
+    state.held=false; renderState();
+  }
+  function landReaction(){
+    const h=phys.drop,ct=phys.carriedFor; let pool,hold=2200;
+    if(phys.dizzyNow){pool=h>240?['faint','dizzy']:['dizzy'];hold=3200;}
+    else if(ct>4.5&&h<130){pool=['sulk','cry','shy','sweat'];hold=3000;}
+    else if(h<30){pool=['wink','happy','shy','blep','giggle','wow'];hold=1800;}
+    else if(h<130){pool=['giggle','happy','wink','blep','wow','hiccup'];}
+    else if(h<260){pool=['startle','giggle','ouch','dizzy','sweat','wow'];hold=2600;}
+    else {pool=['ouch','dizzy','cry','faint'];hold=3200;}
+    goMood(pick(pool),hold); buzz([14,30,20]);
+  }
+  function landNow(){
+    const v=phys.vy, body=state.char==='blob'?1:.45; phys.y=phys.fy;
+    if(v>240){
+      const sq=Math.min(.5,v/2600)*body; phys.sy=1-sq; phys.sx=1+sq*.9; phys.vsx=phys.vsy=0; phys.vy=-v*.28; phys.vx*=.7; buzz(8);
+    } else { phys.vy=0; phys.mode='rest'; phys.restSince=performance.now(); }
+    if(!phys.reacted){phys.reacted=true;landReaction();}
+  }
+  function stepPhys(dt,now){
+    const el=state.char==='blob'?blob:robot, mx=maxX(), isB=state.char==='blob';
+    let tsx=1,tsy=1;
+    switch(phys.mode){
+      case'carry':{
+        const px=phys.x; phys.x+=(phys.tx-phys.x)*(1-Math.exp(-16*dt)); phys.y+=(phys.ty-phys.y)*(1-Math.exp(-16*dt));
+        const vx=(phys.x-px)/Math.max(dt,.001), rt=clamp(vx*.035,-24,24)+Math.sin(now/170)*3;
+        phys.rot+=(rt-phys.rot)*(1-Math.exp(-9*dt));
+        const lift=Math.max(0,phys.fy-phys.y); tsy=1.08+Math.min(.22,lift/700)+Math.sin(now/130)*.015; tsx=1/Math.sqrt(tsy);
+        if(!isB){tsy=1+(tsy-1)*.3;tsx=1/tsy;}
+        phys.carryT+=dt;
+        if(phys.carryT>2.6&&!phys.nervous&&!phys.dizzyNow){phys.nervous=true;if(state.mood===mapMood('carried'))setMood(mapMood('sweat'));}
+        break;}
+      case'fall':{
+        phys.vy+=2400*dt; phys.y+=phys.vy*dt; phys.x+=phys.vx*dt; phys.vx*=Math.exp(-.9*dt);
+        phys.rot+=(clamp(phys.vx*.02,-12,12)-phys.rot)*(1-Math.exp(-6*dt));
+        if(phys.x>mx){phys.x=mx;phys.vx*=-.4;} if(phys.x<-mx){phys.x=-mx;phys.vx*=-.4;}
+        if(phys.y>=phys.fy&&phys.vy>0)landNow();
+        break;}
+      case'walk':{
+        const dir=phys.x>0?-1:1;
+        if(Math.abs(phys.x)>3)phys.x+=dir*Math.min(75*dt,Math.abs(phys.x));
+        if(phys.fy>.5)phys.fy=Math.max(0,phys.fy-30*dt);
+        phys.phase+=dt*(isB?7:6);
+        phys.y=phys.fy-Math.abs(Math.sin(phys.phase))*(isB?12:5);
+        phys.rot=Math.sin(phys.phase)*(isB?3:5);
+        tsy=1+(isB?.07:.02)*Math.cos(phys.phase*2); tsx=1/tsy;
+        state.lookTarget.x=Math.abs(phys.x)>3?dir*.9:0; state.lookTarget.y=0;
+        if(Math.abs(phys.x)<=3&&phys.fy<=.5){phys.x=0;phys.fy=0;phys.mode='rest';phys.restSince=now;goMood(pick(['wink','happy']),1400,true);}
+        break;}
+      default:{
+        phys.y+=(phys.fy-phys.y)*(1-Math.exp(-12*dt)); phys.rot+=(0-phys.rot)*(1-Math.exp(-8*dt));
+        if(Math.abs(phys.vx)>4){phys.x=clamp(phys.x+phys.vx*dt,-mx,mx);phys.vx*=Math.exp(-5*dt);}
+        const away=Math.abs(phys.x)>10||phys.fy>2;
+        if(away&&state.mood==='idle'&&!state.drag&&settingsSheet.hidden&&now-phys.restSince>9000){phys.mode='walk';phys.phase=0;}
+      }
+    }
+    const ks=isB?230:420, cs=isB?10:20;
+    phys.vsx+=(-(phys.sx-tsx)*ks-phys.vsx*cs)*dt; phys.sx=clamp(phys.sx+phys.vsx*dt,.4,1.8);
+    phys.vsy+=(-(phys.sy-tsy)*ks-phys.vsy*cs)*dt; phys.sy=clamp(phys.sy+phys.vsy*dt,.4,1.8);
+    el.style.translate=`${phys.x.toFixed(1)}px ${phys.y.toFixed(1)}px`;
+    el.style.rotate=`${phys.rot.toFixed(2)}deg`;
+    el.style.scale=`${phys.sx.toFixed(3)} ${phys.sy.toFixed(3)}`;
+    const h=Math.max(0,phys.fy-phys.y);
+    shadow.style.translate=`${phys.x.toFixed(1)}px ${phys.fy.toFixed(1)}px`;
+    shadow.style.scale=String(Math.max(.45,1-h/520)); shadow.style.opacity=String(Math.max(.35,1-h/600));
+  }
+
+  /* ---------- Blob: 捏臉 (stretch / squish), then lift off ---------- */
+  function blobDrag(d,e,dist){
+    if(phys.mode==='carry'){carryMove(d,e);shakeCheck(d);return;}
+    if(!d.moved&&dist<16)return;
+    clearTimeout(d.press);
+    const r=d.rect;
+    if(!d.moved){
+      d.moved=true; d.squish=false; interruptSleep(); setFood(null); clearTimeout(state.timers.mood); clearTimeout(state.timers.spring); blob.dataset.spring='0';
+      d.gx=clamp((d.sx-r.left)/r.width,0,1); d.gy=clamp((d.sy-r.top)/r.height,0,1);
+    }
+    const ox=(1-d.gx)*r.width, oy=r.height;
+    const gv=Math.max(60,Math.hypot(d.gx*r.width-ox,d.gy*r.height-oy));
+    const tx=e.clientX-(r.left+ox), ty=e.clientY-(r.top+oy);
+    const raw=Math.hypot(tx,ty)/gv;
+    if(raw>1.95){startCarry(d,e);return;}
+    const s=clamp(raw,.6,1.95), th=Math.atan2(ty,tx), k=1/Math.sqrt(s);
+    state.stretch={tf:`rotate(${th}rad) scale(${s},${k}) rotate(${-th}rad)`,origin:`${(1-d.gx)*100}% 100%`,s};
+    const want=s>1.2?'stretch':(s<.85?'squish':'curious');
+    if(state.mood!==want){setMood(want);sounds[want]?.();}
+    state.held=true; renderState();
+  }
+  function blobRelease(d){
+    const s=state.stretch?state.stretch.s:1;
+    state.stretch=null; state.held=false; springBack();
+    let pool,hold=2600;
+    if(d.squish) pool=['happy','wink','blep','giggle'];
+    else if(s<.85) pool=['wink','blep','happy','giggle'];
+    else if(s<1.5) pool=['happy','curious','wink','blep','shy','giggle'];
+    else pool=['startle','ouch','dizzy','cry','blep','hiccup','sweat'];
+    const m=pick(pool); goMood(m,m==='curious'?1800:hold); buzz([14,30,20]);
+  }
+  function dragRelease(d){
+    clearTimeout(d.press);
+    if(phys.mode==='carry'){endCarry(d);return;}
+    blobRelease(d);
+  }
+  function idleBehavior(){
+    const free=state.mood==='idle'&&!state.drag&&phys.mode==='rest'&&settingsSheet.hidden&&!state.food;
+    if(free){
+      const list=state.char==='blob'?['look','look','look','yawn','hum','bored','think','sneeze','hiccup','dance','wink','shy']:['look','look','look','curious','think','hum','wink'];
+      const a=pick(list);
+      if(a==='look'){
+        state.lookTarget.x=(Math.random()<.5?-1:1)*(.5+Math.random()*.5); state.lookTarget.y=(Math.random()-.5)*.8;
+        setTimeout(()=>{state.lookTarget.x=(Math.random()-.5)*.6;},1200+Math.random()*800);
+      } else goMood(a,({yawn:2400,hum:4000,bored:2600,think:2600,sneeze:1800,hiccup:3500,dance:3000,wink:1500,shy:2000,curious:1800})[a]||2000,true);
+    }
+    setTimeout(idleBehavior,6000+Math.random()*8000);
+  }
+  function setChar(c){
+    if(state.char===c)return;
+    state.names[state.char]=state.name; state.themes[state.char]=state.theme;
+    state.char=c; state.name=state.names[c]; state.theme=state.themes[c]; nameInput.value=state.name;
+    state.held=false; state.hold=null; state.drag=null; state.stretch=null; blob.style.transformOrigin=''; resetPhys();
+    saveSettings(); setFood(null); interruptSleep(); goMood('happy',1500); renderState();
+  }
+    $$('.nubo-swatch[data-char-id]').forEach(btn=>btn.addEventListener('click',()=>setChar(btn.dataset.charId)));
+
+  function oval(ctx,cx,cy,rx,ry,color){rx=Math.max(1,Math.round(rx));ry=Math.max(1,Math.round(ry));ctx.fillStyle=color;for(let y=-ry;y<=ry;y++){const t=1-y*y/(ry*ry);if(t<0)continue;const xw=Math.round(Math.sqrt(t)*rx);ctx.fillRect(Math.round(cx)-xw,Math.round(cy)+y,xw*2+1,1);}}
+  function stamp(ctx,x0,y0,x1,y1,x2,y2,w,color){for(let i=0;i<=16;i++){const t=i/16,u=1-t;oval(ctx,u*u*x0+2*u*t*x1+t*t*x2,u*u*y0+2*u*t*y1+t*t*y2,w,w*.9,color);}}
+  function thickLine(ctx,x0,y0,x1,y1,r,color){const dx=x1-x0,dy=y1-y0,n=Math.max(8,Math.round(Math.hypot(dx,dy)));for(let i=0;i<=n;i++){const t=i/n;oval(ctx,x0+dx*t,y0+dy*t,r,r,color);}}
+  function spark(ctx,x,y,s,color){thickLine(ctx,x-s,y,x+s,y,1.2,color);thickLine(ctx,x,y-s,x,y+s,1.2,color);}
+  function parseHex(hex){const h=hex.replace('#','');return h.length===6?[parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)]:[126,232,234];}
+  function mix(a,b,t){a=parseHex(a);b=parseHex(b);const m=i=>Math.round(a[i]*(1-t)+b[i]*t);return `rgb(${m(0)} ${m(1)} ${m(2)})`;}
+  function drawFace(t){
+    const d={mood:state.mood,lookX:state.lookNow.x,lookY:state.lookNow.y,eyeColor:EYE_COLOR[state.theme],blinking:state.blinking,t};ctx2d.fillStyle='#07080a';ctx2d.fillRect(0,0,128,64);
+    const color=d.eyeColor,dim=mix(color,'#07080a',.38),lx=38+d.lookX*8,rx=90+d.lookX*8,ey=30+d.lookY*6;
+    if(d.mood==='boot'){const p=Math.min(1,d.t/.7);oval(ctx2d,64,32,22*p+8,2.2,color);if(p>.45){const open=(p-.45)/.55;oval(ctx2d,lx,ey,16,2+14*open,color);oval(ctx2d,rx,ey,16,2+14*open,color);}return;}
+    if(d.blinking&&['idle','curious'].includes(d.mood)){oval(ctx2d,lx,ey,16,2.2,color);oval(ctx2d,rx,ey,16,2.2,color);return;}
+    switch(d.mood){
+      case'idle':oval(ctx2d,lx,ey,16,15,color);oval(ctx2d,rx,ey,16,15,color);oval(ctx2d,lx-5,ey-5,4,3.5,mix(color,'#ffffff',.45));oval(ctx2d,rx-5,ey-5,4,3.5,mix(color,'#ffffff',.45));break;
+      case'soothe':stamp(ctx2d,lx-16,ey+6,lx,ey-11,lx+16,ey+6,2.6,color);stamp(ctx2d,rx-16,ey+6,rx,ey-11,rx+16,ey+6,2.6,color);oval(ctx2d,22,46,8,4,'#ff8fab');oval(ctx2d,106,46,8,4,'#ff8fab');break;
+      case'wake':case'sleep':{const w=Math.sin(t*1.4)*.8;oval(ctx2d,lx,ey+3+w,17,2.2,color);oval(ctx2d,rx,ey+3-w,17,2.2,color);break;}
+      case'dizzy':{const a=t*6;oval(ctx2d,lx+Math.cos(a)*3,ey+Math.sin(a)*2,14,14,color);oval(ctx2d,lx+Math.cos(a+1.2)*5,ey+Math.sin(a+1.2)*4,5,5,dim);oval(ctx2d,rx+Math.cos(a+.7)*3,ey+Math.sin(a+.7)*2,14,14,color);oval(ctx2d,rx+Math.cos(a+2)*5,ey+Math.sin(a+2)*4,5,5,dim);spark(ctx2d,14,12,5+Math.sin(t*8),color);spark(ctx2d,114,16,4+Math.cos(t*7),color);break;}
+      case'faint':thickLine(ctx2d,lx-12,ey-11,lx+12,ey+11,2.6,color);thickLine(ctx2d,lx+12,ey-11,lx-12,ey+11,2.6,color);thickLine(ctx2d,rx-12,ey-11,rx+12,ey+11,2.6,color);thickLine(ctx2d,rx+12,ey-11,rx-12,ey+11,2.6,color);oval(ctx2d,64,52,8,3.5,color);break;
+      case'cry':oval(ctx2d,lx,ey,13,16,color);oval(ctx2d,rx,ey,13,16,color);oval(ctx2d,lx,ey-2,4,4,'#07080a');oval(ctx2d,rx,ey-2,4,4,'#07080a');stamp(ctx2d,50,48,64,56,78,48,1.8,color);{const drop=(t*28)%22+40;oval(ctx2d,lx,drop,2.6,4,color);oval(ctx2d,rx,drop+4,2.6,4,color);}break;
+      case'eat':stamp(ctx2d,lx-15,ey+4,lx,ey-10,lx+15,ey+4,2.5,color);stamp(ctx2d,rx-15,ey+4,rx,ey-10,rx+15,ey+4,2.5,color);{const chew=6+Math.abs(Math.sin(t*10))*6;oval(ctx2d,64,50,11,chew,color);oval(ctx2d,64,50,6,Math.max(1,chew-3),'#07080a');}break;
+      case'carried':case'startle':oval(ctx2d,lx,ey,18,18,color);oval(ctx2d,rx,ey,18,18,color);oval(ctx2d,lx+d.lookX*4,ey+d.lookY*4,5,6,'#07080a');oval(ctx2d,rx+d.lookX*4,ey+d.lookY*4,5,6,'#07080a');break;
+      case'angry':thickLine(ctx2d,lx-16,ey-12,lx+14,ey-2,2.8,color);thickLine(ctx2d,rx+16,ey-12,rx-14,ey-2,2.8,color);oval(ctx2d,lx,ey+6,12,9,color);oval(ctx2d,rx,ey+6,12,9,color);oval(ctx2d,lx,ey+7,4,4,'#07080a');oval(ctx2d,rx,ey+7,4,4,'#07080a');thickLine(ctx2d,50,52,78,52,1.8,color);break;
+      case'curious':oval(ctx2d,lx,ey,12,17,color);oval(ctx2d,rx,ey,17,13,color);oval(ctx2d,lx+d.lookX*4,ey+d.lookY*5,4,5,'#07080a');oval(ctx2d,rx+d.lookX*5,ey+d.lookY*4,4.5,4.5,'#07080a');oval(ctx2d,lx-3,ey-5,3,2.5,mix(color,'#ffffff',.4));break;
+      case'happy':stamp(ctx2d,lx-17,ey+7,lx,ey-13,lx+17,ey+7,2.8,color);stamp(ctx2d,rx-17,ey+7,rx,ey-13,rx+17,ey+7,2.8,color);stamp(ctx2d,48,46,64,58,80,46,2,color);spark(ctx2d,12,12,6+Math.sin(t*8),color);spark(ctx2d,116,16,5+Math.cos(t*6),color);oval(ctx2d,20,46,8,4,'#ff8fab');oval(ctx2d,108,46,8,4,'#ff8fab');break;
+    }
+  }
+
+
+  /* ---------- Blob face (canvas 1124x716 design space) ---------- */
+  const BL={w:1124,L:{x:334,y:329},R:{x:803,y:340},INK:'#16121a',PINK:'#ff9db1'};
+  function bStroke(w,c){bctx.lineWidth=w;bctx.strokeStyle=c||BL.INK;bctx.lineCap='round';bctx.lineJoin='round';bctx.stroke();}
+  function bFill(c){bctx.fillStyle=c;bctx.fill();}
+  function bDot(x,y,r,c){bctx.beginPath();bctx.arc(x,y,r,0,Math.PI*2);bFill(c||BL.INK);}
+  function bEye(cx,cy,rx,ry,rot){
+    bctx.save();bctx.translate(cx,cy);bctx.rotate(rot||0);bctx.beginPath();bctx.ellipse(0,0,rx,ry,0,0,Math.PI*2);
+    bFill('#fdfdff');bStroke(11);bctx.restore();
+  }
+  function bPupil(cx,cy,r){bDot(cx,cy,r);bDot(cx-r*.3,cy-r*.32,r*.24,'#fff');}
+  function bArcUp(cx,cy,w,h,lw){bctx.beginPath();bctx.moveTo(cx-w,cy+h*.45);bctx.quadraticCurveTo(cx,cy-h*1.5,cx+w,cy+h*.45);bStroke(lw||17);}
+  function bArcDown(cx,cy,w,h,lw){bctx.beginPath();bctx.moveTo(cx-w,cy);bctx.quadraticCurveTo(cx,cy+h*2,cx+w,cy);bStroke(lw||14);}
+  function bBlush(x,y,col,a){bctx.save();bctx.globalAlpha=a==null?.8:a;for(let i=0;i<3;i++){bctx.beginPath();bctx.moveTo(x+i*36,y+48);bctx.lineTo(x+i*36+26,y);bStroke(10,col||'#ff9a9a');}bctx.restore();}
+  function bBlushes(col,a){bBlush(176,425,col,a);bBlush(846,440,col,a);}
+  function bMouthTri(cx,top,w,h){
+    bctx.beginPath();bctx.moveTo(cx-w/2,top);bctx.quadraticCurveTo(cx,top-14,cx+w/2,top);
+    bctx.quadraticCurveTo(cx+w*.3,top+h*.7,cx+5,top+h);bctx.quadraticCurveTo(cx,top+h+10,cx-5,top+h);
+    bctx.quadraticCurveTo(cx-w*.3,top+h*.7,cx-w/2,top);bctx.closePath();bFill(BL.PINK);bStroke(11);
+    bctx.beginPath();bctx.ellipse(cx,top+h*.7,w*.17,h*.13,0,0,Math.PI*2);bFill('#ff7b97');
+  }
+  function bMouthO(cx,cy,rx,ry){bctx.beginPath();bctx.ellipse(cx,cy,Math.max(2,rx),Math.max(2,ry),0,0,Math.PI*2);bFill(BL.PINK);bStroke(10);bctx.beginPath();bctx.ellipse(cx,cy+ry*.35,rx*.55,ry*.4,0,0,Math.PI*2);bFill('#ff7b97');}
+  function bPupils(lx,ly,r,k){const kk=k==null?1:k;[BL.L,BL.R].forEach(e=>bPupil(e.x+lx*kk,e.y+ly*kk+6,r));}
+
+  function bHeart(x,y,s,col){const c=bctx;c.beginPath();c.moveTo(x,y+s*.55);c.bezierCurveTo(x-s*1.25,y-s*.2,x-s*.7,y-s*1.1,x,y-s*.4);c.bezierCurveTo(x+s*.7,y-s*1.1,x+s*1.25,y-s*.2,x,y+s*.55);bFill(col);bStroke(8);}
+  function bDrop(x,y){const c=bctx;c.beginPath();c.moveTo(x,y-36);c.bezierCurveTo(x+36,y+4,x+24,y+32,x,y+32);c.bezierCurveTo(x-24,y+32,x-36,y+4,x,y-36);bFill('#9bd5ff');bStroke(7);}
+  function bSmile(cx,top,w,h){const c=bctx;c.beginPath();c.moveTo(cx-w/2,top);c.quadraticCurveTo(cx,top+h*.17,cx+w/2,top);c.quadraticCurveTo(cx+w*.41,top+h,cx,top+h+3);c.quadraticCurveTo(cx-w*.41,top+h,cx-w/2,top);c.closePath();bFill(BL.PINK);bStroke(11);c.beginPath();c.ellipse(cx,top+h*.82,w*.25,h*.17,0,0,Math.PI*2);bFill('#ff7b97');}
+  function bStar(x,y,s){const c=bctx;c.beginPath();c.moveTo(x,y-s);c.quadraticCurveTo(x+s*.15,y-s*.15,x+s,y);c.quadraticCurveTo(x+s*.15,y+s*.15,x,y+s);c.quadraticCurveTo(x-s*.15,y+s*.15,x-s,y);c.quadraticCurveTo(x-s*.15,y-s*.15,x,y-s);bFill('#fff');}
+  function drawBlobFace(t){
+    const c=bctx,k=blobFace.width/BL.w;c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,blobFace.width,blobFace.height);c.setTransform(k,0,0,k,0,0);
+    const L=BL.L,R=BL.R,lx=state.lookNow.x*85,ly=state.lookNow.y*22,m=state.mood;
+    if(m==='boot'){const p=Math.min(1,t/.7);[L,R].forEach(e=>{c.beginPath();c.moveTo(e.x-110*p,e.y);c.lineTo(e.x+110*p,e.y);bStroke(14);});return;}
+    if(state.blinking&&(m==='idle'||m==='curious')){bArcDown(L.x,L.y,110,12);bArcDown(R.x,R.y,110,12);bMouthTri(556,414,120,108);bBlushes();return;}
+    switch(m){
+      case'soothe':bArcUp(L.x,L.y+6,100,62);bArcUp(R.x,R.y+6,100,62);bBlushes('#ff7f9a',.95);
+        c.beginPath();c.moveTo(512,438);c.quadraticCurveTo(556,492,600,438);bStroke(13);break;
+      case'sleep':{const b=Math.sin(t*1.4);bArcDown(L.x,L.y+8,105,12,14);bArcDown(R.x,R.y+8,105,12,14);bMouthO(556,462,16+3*b,18+9*b);break;}
+      case'dizzy':{
+        bEye(L.x,L.y,150,70,-.06);bEye(R.x,R.y,160,74,.05);
+        [L,R].forEach(e=>{c.beginPath();for(let a=0;a<Math.PI*6;a+=.2){const r=a/(Math.PI*6)*56,x=e.x+Math.cos(a+t*7)*r*1.5,y=e.y+Math.sin(a+t*7)*r*.95;a?c.lineTo(x,y):c.moveTo(x,y);}bStroke(9);});
+        c.beginPath();for(let i=0;i<=20;i++){const x=500+i*5.6,y=468+Math.sin(i*.9+t*6)*11;i?c.lineTo(x,y):c.moveTo(x,y);}bStroke(11);break;}
+      case'faint':
+        [L,R].forEach(e=>{c.beginPath();c.moveTo(e.x-55,e.y-42);c.lineTo(e.x+55,e.y+42);c.moveTo(e.x+55,e.y-42);c.lineTo(e.x-55,e.y+42);bStroke(18);});
+        c.beginPath();c.ellipse(556,478,26,13,0,0,Math.PI*2);bFill(BL.PINK);bStroke(9);break;
+      case'cry':{
+        bEye(L.x,L.y,150,76,-.04);bEye(R.x,R.y,160,80,.04);bPupils(lx*.25,8,42);
+        [L,R].forEach((e,i)=>{c.save();c.globalAlpha=.55;c.beginPath();c.moveTo(e.x-30,e.y+78);c.lineTo(e.x-34,e.y+170);bStroke(16,'#8fd0ff');c.beginPath();c.moveTo(e.x+30,e.y+78);c.lineTo(e.x+34,e.y+170);bStroke(16,'#8fd0ff');c.restore();
+          for(let j=0;j<2;j++){const f=((t*1.6+j*.5+i*.25)%1),y=e.y+90+f*140;c.save();c.globalAlpha=1-f;c.beginPath();c.ellipse(e.x+(j?30:-30),y,13,20,0,0,Math.PI*2);bFill('#7fc8ff');c.restore();}});
+        c.beginPath();c.moveTo(506,500);c.quadraticCurveTo(556,440+Math.sin(t*14)*5,606,500);bStroke(13);break;}
+      case'eat':{
+        bArcUp(L.x,L.y+6,92,52);bArcUp(R.x,R.y+6,92,52);bBlushes('#ff8a9a',.9);
+        bMouthO(556,468,40,22+Math.abs(Math.sin(t*10))*24);break;}
+      case'startle':
+        bEye(L.x,L.y,165,98,-.04);bEye(R.x,R.y,175,102,.04);bPupils(lx*.35,ly*.35,14);bMouthO(556,478,32,46);break;
+      case'angry':{
+        [[L,1,-.06],[R,-1,.05]].forEach(([e,s,rot])=>{
+          c.save();c.beginPath();c.moveTo(e.x-s*190,e.y-105);c.lineTo(e.x+s*175,e.y-8);c.lineTo(e.x+s*175,e.y+130);c.lineTo(e.x-s*190,e.y+130);c.closePath();c.clip();
+          bEye(e.x,e.y+4,s>0?150:162,s>0?72:78,rot);bPupil(e.x+lx*.5,e.y+22,30);c.restore();
+          c.beginPath();c.moveTo(e.x-s*140,e.y-96);c.lineTo(e.x+s*150,e.y-12);bStroke(19);});
+        c.beginPath();c.moveTo(498,508);c.lineTo(527,482);c.lineTo(556,508);c.lineTo(585,482);c.lineTo(614,508);bStroke(12);
+        {const p=1+Math.sin(t*14)*.12;for(let i=0;i<4;i++){const a=Math.PI/4+i*Math.PI/2;c.beginPath();c.arc(950,150,38*p,a-.5,a+.5);bStroke(13,'#ff5a5a');}}break;}
+      case'curious':
+        bEye(L.x,L.y+8,128,62,-.06);bEye(R.x,R.y-6,178,90,.05);
+        bPupil(L.x+lx*.7,L.y+14+ly,24);bPupil(R.x+lx,R.y-4+ly,34);bMouthTri(556,432,70,66);
+        c.save();c.font='800 150px "Outfit",ui-rounded,sans-serif';c.textAlign='center';c.lineJoin='round';c.lineWidth=16;c.strokeStyle='#fff';
+        c.strokeText('?',956,150+Math.sin(t*5)*8);c.fillStyle='#5c6bd6';c.fillText('?',956,150+Math.sin(t*5)*8);c.restore();break;
+      case'happy':
+        bArcUp(L.x,L.y+8,108,72,19);bArcUp(R.x,R.y+8,108,72,19);bBlushes('#ff7f9a',.95);
+        c.beginPath();c.moveTo(480,432);c.quadraticCurveTo(556,452,632,432);c.quadraticCurveTo(622,545,556,548);c.quadraticCurveTo(490,545,480,432);c.closePath();bFill(BL.PINK);bStroke(11);
+        c.beginPath();c.ellipse(556,520,38,22,0,0,Math.PI*2);bFill('#ff7b97');break;
+      case'carried':bEye(L.x,L.y,156,92,-.04);bEye(R.x,R.y,166,96,.04);bPupils(lx*.3,26,15);bMouthO(556,488,22+Math.sin(t*12)*3,30);break;
+      case'sweat':
+        bEye(L.x,L.y,150,70,-.06);bEye(R.x,R.y,162,76,.05);bPupils(-55+Math.sin(t*3)*10,8,18);
+        c.beginPath();for(let i=0;i<=16;i++){const x=516+i*5,y=484+Math.sin(i*1.1+t*7)*5;i?c.lineTo(x,y):c.moveTo(x,y);}bStroke(11);bDrop(930,250+Math.sin(t*4)*6);break;
+      case'yawn':{const mt=(performance.now()-state.moodT0)/1000,o=Math.sin(Math.PI*clamp(mt/2.1,0,1));
+        bArcDown(L.x,L.y+10,100,8,16);bArcDown(R.x,R.y+10,100,8,16);
+        c.beginPath();c.ellipse(556,486,18+40*o,10+62*o,0,0,Math.PI*2);bFill(BL.PINK);bStroke(11);
+        c.beginPath();c.ellipse(556,486+30*o,(18+40*o)*.55,(10+62*o)*.3,0,0,Math.PI*2);bFill('#ff7b97');
+        bBlush(176,425,'#ff9a9a',.5);bBlush(846,440,'#ff9a9a',.5);break;}
+      case'giggle':{const j=Math.sin(t*40)*3;bArcUp(L.x,L.y+8+j,106,68,19);bArcUp(R.x,R.y+8-j,106,68,19);bBlushes('#ff7f9a',.95);bSmile(556,430+j,160,124);break;}
+      case'ouch':
+        [[L,1],[R,-1]].forEach(([e,s])=>{c.beginPath();c.moveTo(e.x-s*52,e.y-40);c.lineTo(e.x+s*44,e.y);c.lineTo(e.x-s*52,e.y+40);bStroke(19);});
+        c.beginPath();c.moveTo(512,494);c.quadraticCurveTo(556,462,600,494);bStroke(12);bDrop(940,250);break;
+      case'hum':bArcUp(L.x,L.y+8,98,52,15);bArcUp(R.x,R.y+8,98,52,15);bBlushes('#ff9aa8',.7);bMouthO(556,462,16,14+4*Math.sin(t*6));break;
+      case'sneeze':{const mt=(performance.now()-state.moodT0)/1000;
+        if(mt<.9){const p=mt/.9;bEye(L.x,L.y,150,Math.max(18,68*(1-.7*p)),-.06);bEye(R.x,R.y,162,Math.max(20,76*(1-.7*p)),.05);bPupils(0,-6,18*(1-.3*p));bMouthO(556,478,14+16*p,16+26*p);}
+        else{[[L,1],[R,-1]].forEach(([e,s])=>{c.beginPath();c.moveTo(e.x-s*60,e.y-44);c.lineTo(e.x+s*52,e.y);c.lineTo(e.x-s*60,e.y+44);bStroke(21);});bMouthO(556,486,72,56);}
+        break;}
+      case'hiccup':{const hh=((performance.now()-state.moodT0)/1000%.9)<.16?1:0;bEye(L.x,L.y,150,70+hh*12,-.06);bEye(R.x,R.y,162,76+hh*12,.05);bPupils(lx*.4,ly*.4,26-hh*6);bMouthO(556,478,12+hh*14,14+hh*16);bBlushes('#ff9aa8',.6);break;}
+      case'shy':
+        bEye(L.x,L.y+6,146,58,-.06);bEye(R.x,R.y+6,158,64,.05);bPupils(-70,28,21);
+        c.beginPath();c.moveTo(526,474);c.quadraticCurveTo(541,462,556,474);c.quadraticCurveTo(571,486,586,474);bStroke(11);
+        bBlush(160,410,'#ff6f8f',1);bBlush(846,425,'#ff6f8f',1);bBlush(212,436,'#ff6f8f',.9);bBlush(898,450,'#ff6f8f',.9);break;
+      case'sulk':
+        [[L,150,68,-.06],[R,162,76,.05]].forEach(([e,rx,ry,rot])=>{c.save();c.beginPath();c.rect(e.x-200,e.y-6,400,200);c.clip();bEye(e.x,e.y,rx,ry,rot);bPupil(e.x-60,e.y+22,26);c.restore();c.beginPath();c.moveTo(e.x-rx+4,e.y-6);c.lineTo(e.x+rx-4,e.y-6);bStroke(11);});
+        c.beginPath();c.moveTo(518,500);c.quadraticCurveTo(556,468,594,500);bStroke(12);break;
+      case'love':{const p=1+Math.sin(t*9)*.08;bHeart(L.x,L.y+4,66*p,'#ff6f91');bHeart(R.x,R.y+4,66*p,'#ff6f91');bBlushes('#ff7f9a',.95);bSmile(556,440,112,84);break;}
+      case'bored':
+        [[L,150,68,-.06],[R,162,76,.05]].forEach(([e,rx,ry,rot])=>{c.save();c.beginPath();c.rect(e.x-200,e.y-16,400,200);c.clip();bEye(e.x,e.y,rx,ry,rot);bPupil(e.x+lx*.4-30,e.y+4,24);c.restore();c.beginPath();c.moveTo(e.x-rx+4,e.y-16);c.lineTo(e.x+rx-4,e.y-16);bStroke(11);});
+        c.beginPath();c.moveTo(522,484);c.lineTo(590,484);bStroke(11);break;
+      case'wow':
+        bEye(L.x,L.y,166,98,-.04);bEye(R.x,R.y,176,102,.04);
+        [L,R].forEach(e=>{bDot(e.x,e.y+4,44);bStar(e.x-12,e.y-12,15);bStar(e.x+16,e.y+16,8);});bMouthO(556,488,28,38);break;
+      case'think':
+        bEye(L.x,L.y+6,128,62,-.06);bEye(R.x,R.y-4,170,84,.05);bPupil(L.x-34,L.y-12,23);bPupil(R.x-30,R.y-26,30);
+        c.beginPath();c.moveTo(532,482);c.quadraticCurveTo(556,468,580,482);bStroke(11);
+        for(let i=0;i<3;i++){const a=((t*2.2-i*.35)%2+2)%2;bDot(900+i*52,130-i*6,10+(a<1?a*5:0),'#5c6bd6');}break;
+      case'wake':{const mt=(performance.now()-state.moodT0)/1000,p=clamp((mt-.1)/.85,0,1);
+        bEye(L.x,L.y+(1-p)*12,150,Math.max(5,68*p),-.06);bEye(R.x,R.y+(1-p)*12,162,Math.max(5,76*p),.05);if(p>.35)bPupils(0,0,26*p);bMouthO(556,484,14,10+8*(1-p));bBlushes('#ff9aa8',.5);break;}
+      case'dance':bArcUp(L.x,L.y+8,108,70,19);bArcUp(R.x,R.y+8,108,70,19);bBlushes('#ff7f9a',.95);bSmile(556,432,152,116);break;
+      case'stretch':{
+        const w=Math.sin(t*30)*3;
+        c.beginPath();c.moveTo(L.x-62,L.y-48);c.lineTo(L.x+52,L.y+w);c.lineTo(L.x-62,L.y+48);bStroke(20);
+        c.beginPath();c.moveTo(R.x+62,R.y-48);c.lineTo(R.x-52,R.y+w);c.lineTo(R.x+62,R.y+48);bStroke(20);
+        bMouthO(556,486,64+w,38);bBlushes('#ff8a9a',.9);break;}
+      case'squish':
+        bEye(L.x,L.y+6,150,34,-.04);bEye(R.x,R.y+6,160,36,.04);bPupils(0,-4,17);
+        c.beginPath();for(let i=0;i<=16;i++){const x=516+i*5,y=462+Math.sin(i*.8+t*8)*5;i?c.lineTo(x,y):c.moveTo(x,y);}bStroke(11);bBlushes('#ff8a9a',.9);break;
+      case'wink':
+        bArcUp(L.x,L.y+8,104,66,19);bEye(R.x,R.y,162,76,.05);bPupils(lx*.4,ly*.4,28,1);
+        c.beginPath();c.moveTo(500,432);c.quadraticCurveTo(556,450,612,432);c.quadraticCurveTo(604,500,556,502);c.quadraticCurveTo(508,500,500,432);c.closePath();bFill(BL.PINK);bStroke(11);bBlushes('#ff7f9a',.95);break;
+      case'blep':
+        bEye(L.x,L.y,150,68,-.06);bEye(R.x,R.y,162,76,.05);bPupils(lx,ly,28);
+        c.beginPath();c.moveTo(510,440);c.quadraticCurveTo(536,468,556,444);c.quadraticCurveTo(578,468,604,440);bStroke(12);
+        c.beginPath();c.moveTo(566,452);c.lineTo(566,486);c.quadraticCurveTo(590,520+Math.sin(t*9)*4,606,484);c.lineTo(600,452);c.closePath();bFill('#ff7b97');bStroke(10);bBlushes();break;
+      default:
+        bEye(L.x,L.y,150,68,-.06);bEye(R.x,R.y,162,76,.05);bPupils(lx,ly,28);bMouthTri(556,414,120,108);bBlushes();
+    }
+  }
+
+  function renderParticles(){
+    fx.innerHTML=state.particles.map(p=>{const opacity=Math.max(0,p.life/p.max),symbol=p.kind==='heart'?'♥':p.kind==='zzz'?'z':p.kind==='note'?'♪':'+';return `<span class="nubo-part nubo-part-${p.kind==='heart'?'heart':p.kind==='zzz'?'z':'spark'}" style="left:${p.x}px;top:${p.y}px;opacity:${opacity};transform:translate(-50%,-50%) scale(${.7+opacity*.5})">${symbol}</span>`}).join('') + (state.mood==='sleep'?'<span class="nubo-snore">z</span>':'');
+  }
+
+  let last=performance.now(), faceStart=last;
+  function frame(now){
+    const dt=Math.min(.1,(now-last)/1000);last=now;state.lookNow.x+=(state.lookTarget.x-state.lookNow.x)*(1-Math.exp(-8*dt));state.lookNow.y+=(state.lookTarget.y-state.lookNow.y)*(1-Math.exp(-8*dt));
+    stepPhys(dt,now);
+    if(state.mood==='sneeze'&&!state.fl.sneeze&&now-state.moodT0>900){state.fl.sneeze=true;spawn('spark',7);sounds.choo?.();buzz(30);}
+    if((state.mood==='hum'||state.mood==='dance')&&now-(state.lastNote||0)>650){state.lastNote=now;spawn('note',1);}
+    state.particles=state.particles.map(p=>({...p,x:p.x+p.vx*dt,y:p.y+p.vy*dt,vy:p.vy+40*dt,life:p.life-dt})).filter(p=>p.life>0);renderParticles();(state.char==='blob'?drawBlobFace:drawFace)((now-faceStart)/1000);requestAnimationFrame(frame);
+  }
+  function blinkTick(){if(['idle','soothe','curious'].includes(state.mood)){state.blinking=true;setTimeout(()=>state.blinking=false,140);}state.timers.blink=setTimeout(blinkTick,2800+Math.random()*2600);}
+  setInterval(()=>{if(state.mood==='idle'&&!state.held&&phys.mode==='rest'&&performance.now()-(state.hoverT||0)>2500){state.lookTarget.x=(Math.random()-.5)*1.2;state.lookTarget.y=(Math.random()-.5)*.8;}},3200);
+
+  renderState(); nameInput.value=state.name; requestAnimationFrame(frame); state.timers.blink=setTimeout(blinkTick,1800);
+  setTimeout(()=>{setMood('idle');scheduleSleep();setTimeout(idleBehavior,5000);},900);
+})();
+
+</script>
+</body>
+</html>
